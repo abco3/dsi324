@@ -1,0 +1,24 @@
+version: '3'
+
+services:
+  web:
+    build:
+      context: ./web_app
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./web_app:/app
+    depends_on:
+      - db
+
+  db:
+    image: postgres
+    environment:
+      POSTGRES_DB: mydb
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
