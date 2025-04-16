@@ -26,13 +26,13 @@ def check_user_credentials(email, password):
     
     try:
         cursor = conn.cursor()
-        query = "SELECT password_hash FROM users WHERE email = %s"
+        query = "SELECT password FROM users WHERE username = %s"
         cursor.execute(query, (email,))
         result = cursor.fetchone()  
         if result is None:
             return False  
-        stored_password_hash = result[0]  
-        if stored_password_hash == password:
+        stored_password = result[0]  
+        if stored_password == password:
             return True  
         return False  
     except Error as e:
@@ -41,6 +41,7 @@ def check_user_credentials(email, password):
     finally:
         cursor.close()
         conn.close()
+
 
 # Login page
 def login():
