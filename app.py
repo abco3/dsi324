@@ -6,8 +6,8 @@ from mysql.connector import Error
 def connect_db():
     try:
         conn = mysql.connector.connect(
-            host="mysql",  
-            user="root",  
+            host="mysql",
+            user="root",
             password="1234",  
             database="test324"  
         )
