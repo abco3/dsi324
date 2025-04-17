@@ -104,7 +104,7 @@ def data_entry_page():
 
     col_q1_1, col_res1_1 = st.columns(2)
     with col_q1_1:
-        st.markdown("1.1 ให้ความรู้เรื่องยาและสารเสพติด/บุหรี่/บุหรี่ไฟฟ้า/เครื่องดื่มแอลกอฮอล์แก่เยาวชนและประชาชน (รรายบุคคล, เสียงตามสาย, Line, Tiktok ฯลฯ)")
+        st.markdown("1.1 ให้ความรู้เรื่องยาและสารเสพติด/บุหรี่/บุหรี่ไฟฟ้า/เครื่องดื่มแอลกอฮอล์แก่เยาวชนและประชาชน (รายบุคคล, เสียงตามสาย, Line, Tiktok ฯลฯ)")
     with col_res1_1:
         st.number_input("ครั้ง", min_value=0, key="prevention1_times")
         st.number_input("ราย (คน)", min_value=0, key="prevention1_people")
@@ -117,7 +117,7 @@ def data_entry_page():
 
     col_q1_3, col_res1_3 = st.columns(2)
     with col_q1_3:
-        st.markdown("1.3 เฝ้าระวังภัยยาเสพติด (กีดขวาง, ตักเตือน, แจ้งเบาะแส)")
+        st.markdown("1.3 เฝ้าระวังปัญหายาและสารเสพติด(กัญชา,กระท่อม,บุหรี่,บุหรี่ไฟฟ้า,เครื่องดื่มแอลกอฮอล์)ของเยาวชน และประชาชน/ร้านค้าในชุมชน/รอบโรงเรียน")
     with col_res1_3:
         st.number_input("ครั้ง", min_value=0, key="prevention3_times")
 
@@ -130,90 +130,93 @@ def data_entry_page():
 
     col_q1_5, col_res1_5 = st.columns(2)
     with col_q1_5:
-        st.markdown("1.5 แจ้งเบาะแสยาเสพติดแก่หน่วยงานที่เกี่ยวข้อง")
+        st.markdown("1.5 แจ้งเบาะแสเรื่องยาเสพติดแก่หน่วยงานที่เกี่ยวข้อง")
     with col_res1_5:
         st.number_input("ครั้ง", min_value=0, key="prevention5_times")
 
-    st.subheader("2. การช่วยเหลือ สนับสนุน ด้านการบำบัดฟื้นฟูผู้เสพ/ผู้ติดยาเสพติดในชุมชน")
+    st.subheader("2. การช่วยเหลือ สนับสนุน ด้านการบำบัดฟื้นฟูผู้เสพ/ผู้ติดยาและสารเสพติดในชุมชน")
 
     col_q2_1, col_res2_1 = st.columns(2)
     with col_q2_1:
-        st.markdown("2.1 ให้คำปรึกษาเบื้องต้น/ให้กำลังใจ")
+        st.markdown("2.1 ร่วมค้นหาคัดกรอง/แนะนำ/ส่งต่อผู้ใช้,ผู้เสพผู้ติดยาและสารเสพติดเข้าสู่ระบบการบำบัดรักษา")
     with col_res2_1:
         st.number_input("ครั้ง", min_value=0, key="treatment1_times")
         st.number_input("ราย (คน)", min_value=0, key="treatment1_people")
 
     col_q2_2, col_res2_2 = st.columns(2)
     with col_q2_2:
-        st.markdown("2.2 ชักชวน/นำส่งเข้ารับการบำบัด")
+        st.markdown("2.2 ร่วมจัดทำทะเบียนผู้ใช้,ผู้เสพ,ผู้ติดยาและสารเสพติด/ร่วมจัดทำแผนการดูแลผู้มีปัญหายาและเสพติด")
     with col_res2_2:
         st.number_input("ครั้ง", min_value=0, key="treatment2_times")
 
     col_q2_3, col_res2_3 = st.columns(2)
     with col_q2_3:
-        st.markdown("2.3 ติดตาม/ดูแลช่วยเหลือภายหลังการบำบัด")
+        st.markdown("2.3 เฝ้าระวัง/ค้นหา/คัดกรอง ผู้มีอาการทางจิตจากการใช้ยาและสารเสพติดเข้าสู่กระบวนการบำบัดรักษา")
     with col_res2_3:
         st.number_input("ครั้ง", min_value=0, key="treatment3_times")
         st.number_input("ราย (คน)", min_value=0, key="treatment3_people")
 
     col_q2_4, col_res2_4 = st.columns(2)
     with col_q2_4:
-        st.markdown("2.4 ให้ความรู้/จัดกิจกรรมเพื่อพัฒนาทักษะสมอง (EF) ในเด็กปฐมวัย")
+        st.markdown("2.4 ร่วมติดตาม/ดูแลการกินยาทุกวันของผู้ป่วยจิตเวชจากการใช้ยาเสพติด")
     with col_res2_4:
-        st.number_input("ครั้ง", min_value=0, key="prevention4_times_q2") # แก้ key ไม่ให้ซ้ำ
-        st.number_input("ราย (คน)", min_value=0, key="prevention4_people_q2") # แก้ key ไม่ให้ซ้ำ
+        st.number_input("ครั้ง", min_value=0, key="prevention4_times_q2") 
+        st.number_input("ราย (คน)", min_value=0, key="prevention4_people_q2") 
 
     col_q2_5, col_res2_5 = st.columns(2)
     with col_q2_5:
-        st.markdown("2.5 แจ้งเบาะแสยาเสพติดแก่หน่วยงานที่เกี่ยวข้อง")
+        st.markdown("2.5 ร่วมซ้อมแผนการเผชิญเหตุบุคคลคลุ้มคลั่งจากการใช้ยาและสารเสพติดในชุมชน")
     with col_res2_5:
-        st.number_input("ครั้ง", min_value=0, key="prevention5_times_q2") # แก้ key ไม่ให้ซ้ำ
+        st.number_input("ครั้ง", min_value=0, key="prevention5_times_q2") 
 
-    st.subheader("3. การพัฒนาศักยภาพตนเองและเครือข่าย")
+    st.subheader("3. การช่วยเหลือสนับสนุนด้านการติดตามดูแลช่วยเหลือผู้ใช้, ผู้เสพ, ผู้ติดยาและสารเสพติดที่ผ่านการบำบัดรักษาในชุมชน")
 
     col_q3_1, col_res3_1 = st.columns(2)
     with col_q3_1:
-        st.markdown("3. ให้ความรู้/จัดกิจกรรมเพื่อพัฒนาทักษะสมอง (EF) ในเด็กปฐมวัย")
+        st.markdown("3. การช่วยเหลือสนับสนุนด้านการติดตามดูแลช่วยเหลือผู้ใช้, ผู้เสพ, ผู้ติดยาและสารเสพติดที่ผ่านการบำบัดรักษาในชุมชน")
     with col_res3_1:
-        st.number_input("ครั้ง", min_value=0, key="prevention1_times_q3") # แก้ key ไม่ให้ซ้ำ
-        st.number_input("ราย (คน)", min_value=0, key="prevention1_people_q3") # แก้ key ไม่ให้ซ้ำ
+        st.number_input("ครั้ง", min_value=0, key="prevention1_times_q3") 
+        st.number_input("ราย (คน)", min_value=0, key="prevention1_people_q3") 
 
-    st.subheader("4. ปัญหา/อุปสรรคในการดำเนินงาน (ถ้ามี)")
+    st.subheader("4.การมีส่วนร่วมกับภาคีเครือข่ายด้านการป้องกันและแก้ไขปัญหายาและสารเสพติด")
 
     col_q4_1, col_res4_1 = st.columns(2)
     with col_q4_1:
-        st.markdown("4.1 ให้ความรู้/จัดกิจกรรมเพื่อพัฒนาทักษะสมอง (EF) ในเด็กปฐมวัย")
+        st.markdown("4.1 เข้าร่วมเวทีประชาคม/ประชุม/อบรม/ศึกษาดูงาน ด้านการป้องและแก้ไขปัญหายาและสารเสพติด")
     with col_res4_1:
-        st.number_input("ครั้ง", min_value=0, key="prevention1_times_q4_1") # แก้ key ไม่ให้ซ้ำ
+        st.number_input("ครั้ง", min_value=0, key="prevention1_times_q4_1") 
 
     col_q4_2, col_res4_2 = st.columns(2)
     with col_q4_2:
-        st.markdown("4.2 ให้ความรู้/จัดกิจกรรมเพื่อพัฒนาทักษะสมอง (EF) ในเด็กปฐมวัย")
+        st.markdown("4.2 ร่วมกิจกรรมป้องกันยาและสารเสพติดกับหน่วยงานอื่น ๆ เช่น วันต่อต้านยาเสพติด")
     with col_res4_2:
-        st.number_input("ครั้ง", min_value=0, key="prevention1_times_q4_2") # แก้ key ไม่ให้ซ้ำ
+        st.number_input("ครั้ง", min_value=0, key="prevention1_times_q4_2")
 
-    st.subheader("5. การพัฒนาศักยภาพตนเองและเครือข่าย")
+    st.subheader("5. การให้คำปรึกษา/แนะนำแก่ผู้มีปัญหาเรื่องยาและสารเสพติด")
 
     col_q5_1, col_res5_1 = st.columns(2)
     with col_q5_1:
-        st.markdown("5. ให้คำปรึกษาเบื้องต้น/ให้กำลังใจ")
+        st.markdown("5. การให้คำปรึกษา/แนะนำแก่ผู้มีปัญหาเรื่องยาและสารเสพติด")
     with col_res5_1:
-        st.number_input("ครั้ง", min_value=0, key="treatment1_times_q5") # แก้ key ไม่ให้ซ้ำ
-        st.number_input("ราย (คน)", min_value=0, key="treatment1_people_q5") # แก้ key ไม่ให้ซ้ำ
+        st.number_input("ครั้ง", min_value=0, key="treatment1_times_q5")
+        st.number_input("ราย (คน)", min_value=0, key="treatment1_people_q5")
 
     st.subheader("6. งานอื่น ๆ ตามสภาพปัญหายาเสพติดในชุมชน")
     suggestions = st.text_area("โปรดระบุ")
 
-    if st.button("บันทึกข้อมูลอาสาสมัคร"): # เปลี่ยนชื่อปุ่ม
+    st.subheader("หมายเหตุ")
+    suggestions = st.text_area("โปรดระบุ")
+
+    if st.button("บันทึกข้อมูลอาสาสมัคร"):
         data = {
+            "เลขประจำตัวอาสาสมัคร": volunteer_id,
             "คำนำหน้า": prefix,
             "ชื่อ": first_name,
             "นามสกุล": last_name,
-            "เลขประจำตัวอาสาสมัคร": volunteer_id,
-            "วันเกิด": birth_date,
-            "เพศ": gender,
             "เบอร์โทรศัพท์": phone_number,
             "ชุมชน": community,
+            "วันเกิด": birth_date.isoformat() if birth_date else None, # แปลงเป็น String ในรูปแบบ ISO หรือ None ถ้าไม่มีค่า
+            "เพศ": gender,
             "แขวง/ตำบล": sub_district,
             "เขต/อำเภอ": district,
             "จังหวัด": province,
@@ -222,25 +225,26 @@ def data_entry_page():
             "ป้องกันและเฝ้าระวัง 1.1 ครั้ง": st.session_state.prevention1_times,
             "ป้องกันและเฝ้าระวัง 1.1 ราย": st.session_state.prevention1_people,
             "ป้องกันและเฝ้าระวัง 1.2 ครั้ง": st.session_state.prevention2_times,
-            "ป้องกันและเฝ้าระวัง 1.2 ราย": st.session_state.prevention2_people,
             "ป้องกันและเฝ้าระวัง 1.3 ครั้ง": st.session_state.prevention3_times,
-            "ป้องกันและเฝ้าระวัง 1.3 ราย": st.session_state.prevention3_people,
             "ป้องกันและเฝ้าระวัง 1.4 ครั้ง": st.session_state.prevention4_times,
             "ป้องกันและเฝ้าระวัง 1.4 ราย": st.session_state.prevention4_people,
             "ป้องกันและเฝ้าระวัง 1.5 ครั้ง": st.session_state.prevention5_times,
             "ช่วยเหลือ บำบัด 2.1 ครั้ง": st.session_state.treatment1_times,
             "ช่วยเหลือ บำบัด 2.1 ราย": st.session_state.treatment1_people,
             "ช่วยเหลือ บำบัด 2.2 ครั้ง": st.session_state.treatment2_times,
-            "ช่วยเหลือ บำบัด 2.2 ราย": st.session_state.treatment2_people,
             "ช่วยเหลือ บำบัด 2.3 ครั้ง": st.session_state.treatment3_times,
             "ช่วยเหลือ บำบัด 2.3 ราย": st.session_state.treatment3_people,
-            "พัฒนาศักยภาพ 3.1 ครั้ง": st.session_state.develop1_times,
-            "พัฒนาศักยภาพ 3.2 ครั้ง": st.session_state.develop2_times,
+            "พัฒนาศักยภาพ 3.1 ครั้ง": st.session_state.prevention1_times_q3, # อ้างอิง key ที่ถูกต้อง
+            "พัฒนาศักยภาพ 3.1 ราย": st.session_state.prevention1_people_q3, # อ้างอิง key ที่ถูกต้อง
+            "ปัญหา/อุปสรรค 4.1 ครั้ง": st.session_state.prevention1_times_q4_1, # อ้างอิง key ที่ถูกต้อง
+            "ปัญหา/อุปสรรค 4.2 ครั้ง": st.session_state.prevention1_times_q4_2, # อ้างอิง key ที่ถูกต้อง
+            "พัฒนาศักยภาพตนเองและเครือข่าย 5.1 ครั้ง": st.session_state.treatment1_times_q5, # อ้างอิง key ที่ถูกต้อง
+            "พัฒนาศักยภาพตนเองและเครือข่าย 5.1 ราย": st.session_state.treatment1_people_q5, # อ้างอิง key ที่ถูกต้อง
             "ข้อเสนอแนะ": suggestions,
         }
         st.write("ข้อมูลที่กรอก:")
         st.write(data)
-        st.success("บันทึกข้อมูลเรียบร้อยแล้ว!") # แทนที่ด้วยการบันทึกลงฐานข้อมูลจริง
+        st.success("บันทึกข้อมูลเรียบร้อยแล้ว!")
 
 # Main function to control navigation
 def main():
