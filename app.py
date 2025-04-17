@@ -1,6 +1,7 @@
 import streamlit as st
 import mysql.connector 
 from mysql.connector import Error
+from list import districts_bangkok, subdistricts_by_district
 
 # Function to connect to the database
 def connect_db():
@@ -89,9 +90,16 @@ def data_entry_page():
     with col4:
         gender = st.radio("เพศ", ["ชาย", "หญิง", "อื่นๆ"])
 
-    sub_district = st.text_input("แขวง/ตำบล")
-    district = st.text_input("เขต/อำเภอ")
-    province = st.text_input("จังหวัด")
+    district_list = list(subdistricts_by_district.keys())
+    district = st.selectbox("เขต/อำเภอ", district_list)
+
+    selected_district = st.session_state.get("district")
+    if district:
+         sub_district_options = subdistricts_by_district.get(district, [])
+    else:
+        sub_district_options = []
+    sub_district = st.selectbox("แขวง/ตำบล", sub_district_options, key="sub_district")
+    province = st.selectbox("จังหวัด", ["กรุงเทพมหานคร"])
 
     st.subheader("การดำเนินงาน")
     operation_month = st.selectbox("ประจำเดือน", [
@@ -202,10 +210,10 @@ def data_entry_page():
         st.number_input("ราย (คน)", min_value=0, key="treatment1_people_q5")
 
     st.subheader("6. งานอื่น ๆ ตามสภาพปัญหายาเสพติดในชุมชน")
-    suggestions = st.text_area("โปรดระบุ")
+    suggestions = st.text_area("โปรดระบุ", key="suggestions")
 
     st.subheader("หมายเหตุ")
-    suggestions = st.text_area("โปรดระบุ")
+    suggestions_note = st.text_area("โปรดระบุ", key="note")
 
     if st.button("บันทึกข้อมูลอาสาสมัคร"):
         data = {
@@ -215,9 +223,9 @@ def data_entry_page():
             "นามสกุล": last_name,
             "เบอร์โทรศัพท์": phone_number,
             "ชุมชน": community,
-            "วันเกิด": birth_date.isoformat() if birth_date else None, # แปลงเป็น String ในรูปแบบ ISO หรือ None ถ้าไม่มีค่า
+            "วันเกิด": birth_date.isoformat() if birth_date else None,
             "เพศ": gender,
-            "แขวง/ตำบล": sub_district,
+            "แขวง/ตำบล": st.session_state.sub_district,
             "เขต/อำเภอ": district,
             "จังหวัด": province,
             "ประจำเดือน": operation_month,
@@ -234,13 +242,17 @@ def data_entry_page():
             "ช่วยเหลือ บำบัด 2.2 ครั้ง": st.session_state.treatment2_times,
             "ช่วยเหลือ บำบัด 2.3 ครั้ง": st.session_state.treatment3_times,
             "ช่วยเหลือ บำบัด 2.3 ราย": st.session_state.treatment3_people,
-            "พัฒนาศักยภาพ 3.1 ครั้ง": st.session_state.prevention1_times_q3, # อ้างอิง key ที่ถูกต้อง
-            "พัฒนาศักยภาพ 3.1 ราย": st.session_state.prevention1_people_q3, # อ้างอิง key ที่ถูกต้อง
-            "ปัญหา/อุปสรรค 4.1 ครั้ง": st.session_state.prevention1_times_q4_1, # อ้างอิง key ที่ถูกต้อง
-            "ปัญหา/อุปสรรค 4.2 ครั้ง": st.session_state.prevention1_times_q4_2, # อ้างอิง key ที่ถูกต้อง
-            "พัฒนาศักยภาพตนเองและเครือข่าย 5.1 ครั้ง": st.session_state.treatment1_times_q5, # อ้างอิง key ที่ถูกต้อง
-            "พัฒนาศักยภาพตนเองและเครือข่าย 5.1 ราย": st.session_state.treatment1_people_q5, # อ้างอิง key ที่ถูกต้อง
-            "ข้อเสนอแนะ": suggestions,
+            "ช่วยเหลือ บำบัด 2.4 ครั้ง": st.session_state.prevention4_times_q2, # อ้างอิงจาก Input 2.4
+            "ช่วยเหลือ บำบัด 2.4 ราย": st.session_state.prevention4_people_q2, # อ้างอิงจาก Input 2.4
+            "ช่วยเหลือ บำบัด 2.5 ครั้ง": st.session_state.prevention5_times_q2, # อ้างอิงจาก Input 2.5
+            "ช่วยเหลือสนับสนุน 3.1 ครั้ง": st.session_state.prevention1_times_q3, # อ้างอิงจาก Input 3
+            "ช่วยเหลือสนับสนุน 3.1 ราย": st.session_state.prevention1_people_q3, # อ้างอิงจาก Input 3
+            "มีส่วนร่วมกับภาคีเครือข่าย 4.1 ครั้ง": st.session_state.prevention1_times_q4_1, # อ้างอิงจาก Input 4.1
+            "มีส่วนร่วมกับภาคีเครือข่าย 4.2 ครั้ง": st.session_state.prevention1_times_q4_2, # อ้างอิงจาก Input 4.2
+            "ให้คำปรึกษา/แนะนำ 5.1 ครั้ง": st.session_state.treatment1_times_q5, # อ้างอิงจาก Input 5
+            "ให้คำปรึกษา/แนะนำ 5.1 ราย": st.session_state.treatment1_people_q5, # อ้างอิงจาก Input 5
+            "งานอื่น ๆ": suggestions,
+            "หมายเหตุ": suggestions_note
         }
         st.write("ข้อมูลที่กรอก:")
         st.write(data)
