@@ -2,8 +2,11 @@ import streamlit as st
 import mysql.connector 
 import datetime
 import pandas as pd
+import pyotp
+import os
 from mysql.connector import Error
 from list import districts_bangkok, subdistricts_by_district
+
 
 # Function to connect to the database
 def connect_db():
@@ -51,22 +54,35 @@ def insert_data_to_db(data):
             conn.close()
 
 # Function to check user credentials
-def check_user_credentials(email, password):
+def check_user_credentials(email, password, otp_code):
     conn = connect_db()
     if conn is None:
         return False
-    
+
     try:
-        cursor = conn.cursor()
-        query = "SELECT password FROM users WHERE username = %s"
+        cursor = conn.cursor(dictionary=True)
+        query = "SELECT password, otp_secret FROM users WHERE email = %s"
         cursor.execute(query, (email,))
-        result = cursor.fetchone()  
+        result = cursor.fetchone()
+
         if result is None:
-            return False  
-        stored_password = result[0]  
-        if stored_password == password:
-            return True  
-        return False  
+            print("No user found.")
+            return False
+
+        if result['password'] != password:
+            print(f"Password mismatch. Stored: {result['password']} Input: {password}")
+            return False
+
+        # OTP check
+        totp = pyotp.TOTP(result['otp_secret'])
+        otp_generated = totp.now()
+        print(f"Generated OTP: {otp_generated} - Input OTP: {otp_code}")
+
+        if not totp.verify(otp_code):
+            print("OTP verification failed.")
+            return False
+
+        return True
     except Error as e:
         print(f"Error while checking credentials: {e}")
         return False
@@ -81,19 +97,20 @@ def login():
     
     email = st.text_input("Email")
     password = st.text_input("Password", type="password")
+    otp_code = st.text_input("OTP Authenticaton", type="password")
     
     if st.button("Login"):
         if '@dome.tu.ac.th' in email:
-            if email and password:
-                if check_user_credentials(email, password):  
+            if email and password and otp_code:
+                if check_user_credentials(email, password, otp_code):  
                     st.success("Login successful!")
                     st.session_state.logged_in = True
                     st.session_state.username = email  
-                    st.session_state.page = "Home"  # Set page to "Home" after login
+                    st.session_state.page = "Home"
                 else:
-                    st.error("Incorrect email or password.")  
+                    st.error("Incorrect email, password or OTP.")  
             else:
-                st.error("Please enter both email and password.")
+                st.error("Please enter email, password, and OTP.")
         else:
             st.error("Invalid email domain. Please use a valid organization email.")
 
