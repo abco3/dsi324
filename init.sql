@@ -8,9 +8,17 @@ CREATE TABLE IF NOT EXISTS users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     email VARCHAR(255) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
+    role VARCHAR(30) NOT NULL DEFAULT 'user',
     otp_secret VARCHAR(32) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    -- Constraints
+    CHECK (email LIKE '%@dome.tu.ac.th'),
+    CHECK (role IN ('user', 'admin', 'dev'))
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+
+INSERT INTO users (email, password, role, otp_secret) 
+VALUES ('iamdev@dome.tu.ac.th', '54321', 'dev', '6F6TYHUJHHXOFYTZTHQYRGKNMZ3LKZPD');
 
 CREATE TABLE IF NOT EXISTS reports (
     id INT AUTO_INCREMENT PRIMARY KEY,

@@ -1,0 +1,43 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environments
+env/
+venv/
+.venv/
+
+# Environment variables or secret config
+*.env
+
+# macOS / Linux system files
+.DS_Store
+
+# QR code images
+qr_img/
+
+# Docker volumes
+mysql-data/
+*.sql~
+
+# Jupyter notebook checkpoints
+.ipynb_checkpoints/
+
+# VSCode settings
+.vscode/
+
+# PyCharm settings
+.idea/
+
+# Logs
+*.log
+logs/
+
+# Ignore compiled init files
+__init__.pyc
+
+# Ignore test artifacts
+coverage/
+htmlcov/
+.cache/

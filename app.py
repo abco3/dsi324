@@ -1,8 +1,10 @@
 import streamlit as st
 import mysql.connector 
 import datetime
+import time
 import pandas as pd
 import pyotp
+import qrcode
 import os
 from mysql.connector import Error
 from list import districts_bangkok, subdistricts_by_district
@@ -24,6 +26,7 @@ def connect_db():
         print(f"Error while connecting to MySQL: {e}")
         return None
 
+
 # Function to insert data
 def insert_data_to_db(data):
     try:
@@ -35,7 +38,7 @@ def insert_data_to_db(data):
         )
         cursor = conn.cursor()
 
-        # เตรียม SQL INSERT
+        # prepare SQL INSERT
         placeholders = ', '.join(['%s'] * len(data))
         columns = ', '.join(data.keys())
         sql = f"INSERT INTO reports ({columns}) VALUES ({placeholders})"
@@ -53,25 +56,26 @@ def insert_data_to_db(data):
             cursor.close()
             conn.close()
 
+
 # Function to check user credentials
 def check_user_credentials(email, password, otp_code):
     conn = connect_db()
     if conn is None:
-        return False
+        return False, None
 
     try:
         cursor = conn.cursor(dictionary=True)
-        query = "SELECT password, otp_secret FROM users WHERE email = %s"
+        query = "SELECT password, otp_secret, role FROM users WHERE email = %s"
         cursor.execute(query, (email,))
         result = cursor.fetchone()
 
         if result is None:
             print("No user found.")
-            return False
-
+            return False, None
+        
         if result['password'] != password:
             print(f"Password mismatch. Stored: {result['password']} Input: {password}")
-            return False
+            return False, None
 
         # OTP check
         totp = pyotp.TOTP(result['otp_secret'])
@@ -80,39 +84,94 @@ def check_user_credentials(email, password, otp_code):
 
         if not totp.verify(otp_code):
             print("OTP verification failed.")
-            return False
+            return False, None
 
-        return True
+        return True, result['role']
+
     except Error as e:
         print(f"Error while checking credentials: {e}")
-        return False
+        return False, None
     finally:
         cursor.close()
         conn.close()
 
 
-# Login page
+#Login page
 def login():
-    st.title("Login to Your Account")
-    
+    st.title("🔐Login to Your Account")
+
+    # flag
+    if "logging_in" not in st.session_state:
+        st.session_state.logging_in = False
+
     email = st.text_input("Email")
     password = st.text_input("Password", type="password")
-    otp_code = st.text_input("OTP Authenticaton", type="password")
-    
-    if st.button("Login"):
-        if '@dome.tu.ac.th' in email:
-            if email and password and otp_code:
-                if check_user_credentials(email, password, otp_code):  
-                    st.success("Login successful!")
-                    st.session_state.logged_in = True
-                    st.session_state.username = email  
-                    st.session_state.page = "Home"
-                else:
-                    st.error("Incorrect email, password or OTP.")  
-            else:
+    otp_code = st.text_input("OTP Authentication", type="password")
+
+    if not st.session_state.logging_in:
+        if st.button("Login"):
+            # validate domain & fields
+            if '@dome.tu.ac.th' not in email:
+                st.error("Invalid email domain.")
+            elif not (email and password and otp_code):
                 st.error("Please enter email, password, and OTP.")
-        else:
-            st.error("Invalid email domain. Please use a valid organization email.")
+            else:
+                ok, role = check_user_credentials(email, password, otp_code)
+                if not ok:
+                    st.error("Incorrect email, password or OTP.")
+                else:
+                    # success show
+                    local_part = email.split('@')[0]
+                    st.session_state.user_email = email 
+                    st.session_state.username = local_part
+                    st.session_state.role = role
+                    st.session_state.logging_in = True
+                    st.rerun()
+
+    # logging_in == True
+    else:
+        st.success("✅ Login successful! Redirecting...")
+        time.sleep(5)
+        st.session_state.logged_in = True
+        st.session_state.page = "🏠Home"
+        st.session_state.logging_in = False
+        st.rerun()
+
+
+#Create Account page
+def create_account_page():
+    st.title("📝Create Account")
+
+    new_email = st.text_input("Email")
+    new_password = st.text_input("Password", type="password")
+    new_role = st.selectbox("Role", ["user", "admin", "dev"])
+
+    if st.button("Create Account"):
+        # OTP Secret
+        totp = pyotp.TOTP(pyotp.random_base32())
+        otp_secret = totp.secret
+
+        # add to db
+        conn = connect_db()
+        cursor = conn.cursor()
+        cursor.execute("""
+            INSERT INTO users (email, password, role, otp_secret)
+            VALUES (%s, %s, %s, %s)
+        """, (new_email, new_password, new_role, otp_secret))
+        conn.commit()
+
+        # create QR Code
+        otp_uri = totp.provisioning_uri(name=new_email, issuer_name="DSI324 App")
+        img = qrcode.make(otp_uri)
+        img_path = f"qr_img/qr_{new_email.replace('@', '_at_')}.png"
+        os.makedirs("qr_img", exist_ok=True)
+        img.save(img_path)
+
+        st.success("Account created successfully!✅")
+
+        st.markdown("🔎Scan this QR code with Google Authenticator🔎")
+        st.image(img_path, width=200)
+
 
 # Data entry page
 def data_entry_page():
@@ -316,7 +375,7 @@ def data_entry_page():
 # Function Monitor Data
 def view_reports_page():
 
-    st.title("Reports from Volunteer")
+    st.title("📋Reports from Volunteer")
     conn = connect_db()
     if conn:
         df = pd.read_sql("SELECT * FROM reports", conn)
@@ -335,25 +394,70 @@ def main():
     if 'logged_in' not in st.session_state or not st.session_state.logged_in:
         login()  # Show login page if not logged in
     else:
-        # Check if page state is set
+        # Set default page if not set
         if 'page' not in st.session_state:
-            st.session_state.page = "Home"  # Default to "Home" page if not set
-        
-        # Use sidebar for page selection
-        page = st.sidebar.selectbox("Choose an option", ["Home", "Enter Data", "Reports"])
+            st.session_state.page = "🏠Home"
 
-        if page == "Home":
-            st.session_state.page = "Home"
-            st.title(f"Welcome, {st.session_state.username}!")
-            st.write("You are now logged in.")
-            st.write("Please select an option from the menu.")
-        
-        elif page == "Enter Data":
-            st.session_state.page = "Enter Data"
-            data_entry_page()  # Show the data entry page
+        role = st.session_state.get("role", "")  # role from login
 
-        elif page == "Reports":
-            view_reports_page() 
+        # Prepare page options based on role
+        page_options = ["🏠Home"]
+        if role in ["admin", "dev"]:
+            page_options.extend(["💻Enter Data", "📋Reports"])
+        elif role == "user":
+            page_options.append("📋Reports")
+        if role == "dev":
+            page_options.append("📝Create Account")
 
-if __name__ == '__main__':
+        # Sidebar selection
+        page = st.sidebar.selectbox("📃Choose an option", page_options)
+
+        # Page routing
+        if page == "🏠Home":
+            st.session_state.page = "🏠Home"
+            st.title(f"👋🏻Welcome, {st.session_state.username} !😊")
+            st.write("You are now logged in.✅")
+            st.write("Please select an option from the menu.📃")
+
+            # confirm logout
+            if st.session_state.get("confirm_logout", False):
+                st.warning("Are you sure you want to log out?")
+                
+                col1, col2 = st.columns([1, 1])
+                with col1:
+                    if st.button("✅ Sure", key="confirm_yes", use_container_width=True):
+                        st.session_state.clear()
+                        st.rerun()
+                with col2:
+                    if st.button("❌ Cancel", key="confirm_no", use_container_width=True):
+                        st.session_state.confirm_logout = False
+                        st.rerun()
+            else:
+                if st.button("🔓 Logout", key="logout_btn"):
+                    st.session_state.confirm_logout = True
+                    st.rerun()
+
+        elif page == "💻Enter Data":
+            if role in ["admin", "dev"]:
+                st.session_state.page = "💻Enter Data"
+                data_entry_page()
+            else:
+                st.error("You do not have access to this page.")
+
+        elif page == "📋Reports":
+            if role in ["admin", "dev", "user"]:
+                st.session_state.page = "📋Reports"
+                view_reports_page()
+            else:
+                st.error("You do not have access to this page.")
+
+        elif page == "📝Create Account":
+            if role == "dev":
+                st.session_state.page = "📝Create Account"
+                create_account_page()
+            else:
+                st.error("You do not have access to this page.")
+
+
+if __name__ == "__main__":
     main()

@@ -1,10 +1,9 @@
 -- connect db from terminal: 
-docker exec -it dsi324-mysql-1 mysql -u root -p --default-character-set=utf8mb4
 
--- use add_user_with_qr.py:
-docker compose exec app bash
+    docker exec -it dsi324-mysql-1 mysql -u root -p --default-character-set=utf8mb4
 
-python add_user_with_qr.py
+-- use adduser.py:
 
--- save img:
-docker cp dsi324-app-1:/app/qr_
+    docker compose exec app bash
+
+    python create_acc.py
