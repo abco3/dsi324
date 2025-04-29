@@ -10,6 +10,17 @@ from mysql.connector import Error
 from list import districts_bangkok, subdistricts_by_district
 
 
+st.markdown("""
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Kanit&display=swap');
+
+    html, body, div, p, label, input, textarea, button, h1, h2, h3, h4, h5, h6, span {
+        font-family: 'Kanit', sans-serif !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+
 # Function to connect to the database
 def connect_db():
     try:
@@ -30,12 +41,7 @@ def connect_db():
 # Function to insert data
 def insert_data_to_db(data):
     try:
-        conn = mysql.connector.connect(
-            host="mysql",
-            user="root",
-            password="1234",
-            database="test324"
-        )
+        conn = connect_db()
         cursor = conn.cursor()
 
         # prepare SQL INSERT
@@ -47,7 +53,7 @@ def insert_data_to_db(data):
         cursor.execute(sql, values)
         conn.commit()
 
-        st.success("บันทึกข้อมูลลงฐานข้อมูลสำเร็จแล้ว!")
+        st.success("✅ บันทึกข้อมูลสำเร็จ")
 
     except mysql.connector.Error as err:
         st.error(f"เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล: {err}")
@@ -96,57 +102,64 @@ def check_user_credentials(email, password, otp_code):
         conn.close()
 
 
-#Login page
+# Login page
 def login():
-    st.title("🔐Login to Your Account")
+    st.title("เข้าสู่ระบบ")
 
-    # flag
     if "logging_in" not in st.session_state:
         st.session_state.logging_in = False
 
-    email = st.text_input("Email")
-    password = st.text_input("Password", type="password")
-    otp_code = st.text_input("OTP Authentication", type="password")
+    # Form section
+    with st.form("login_form"):
+        
+        email = st.text_input("อีเมล", disabled=st.session_state.logging_in)
+        password = st.text_input("รหัสผ่าน", type="password", disabled=st.session_state.logging_in)
+        otp_code = st.text_input("รหัส OTP", type="password", disabled=st.session_state.logging_in)
 
-    if not st.session_state.logging_in:
-        if st.button("Login"):
-            # validate domain & fields
-            if '@dome.tu.ac.th' not in email:
-                st.error("Invalid email domain.")
-            elif not (email and password and otp_code):
-                st.error("Please enter email, password, and OTP.")
+        if not st.session_state.logging_in:
+            submit = st.form_submit_button("เข้าสู่ระบบ")
+        else:
+            st.markdown("")
+            submit = False
+
+    # Handle login
+    if submit:
+        if '@hvbma.or.th' not in email:
+            st.error("อีเมลไม่ถูกต้อง")
+        elif not (email and password and otp_code):
+            st.error("โปรดระบุ อีเมล รหัสผ่าน และรหัส OTP")
+        else:
+            ok, role = check_user_credentials(email, password, otp_code)
+            if not ok:
+                st.error("อีเมล รหัสผ่าน หรือรหัส OTP ไม่ถูกต้อง")
             else:
-                ok, role = check_user_credentials(email, password, otp_code)
-                if not ok:
-                    st.error("Incorrect email, password or OTP.")
-                else:
-                    # success show
-                    local_part = email.split('@')[0]
-                    st.session_state.user_email = email 
-                    st.session_state.username = local_part
-                    st.session_state.role = role
-                    st.session_state.logging_in = True
-                    st.rerun()
+                # cant duplicate login
+                local_part = email.split('@')[0]
+                st.session_state.user_email = email 
+                st.session_state.username = local_part
+                st.session_state.role = role
+                st.session_state.logging_in = True
+                st.rerun()
 
-    # logging_in == True
-    else:
-        st.success("✅ Login successful! Redirecting...")
+    # login success
+    elif st.session_state.logging_in:
+        st.success("✅ เข้าสู่ระบบสำเร็จ ...")
         time.sleep(1)
         st.session_state.logged_in = True
-        st.session_state.page = "🏠Home"
+        st.session_state.page = "หน้าหลัก"
         st.session_state.logging_in = False
         st.rerun()
 
 
 #Create Account page
 def create_account_page():
-    st.title("📝Create Account")
+    st.title("สร้างบัญชี")
 
-    new_email = st.text_input("Email")
-    new_password = st.text_input("Password", type="password")
-    new_role = st.selectbox("Role", ["user", "admin", "dev"])
+    new_email = st.text_input("อีเมล")
+    new_password = st.text_input("รหัสผ่าน", type="password")
+    new_role = st.selectbox("บทบาท", ["user", "admin", "dev"])
 
-    if st.button("Create Account"):
+    if st.button("สร้างบัญชี"):
         # OTP Secret
         totp = pyotp.TOTP(pyotp.random_base32())
         otp_secret = totp.secret
@@ -167,9 +180,9 @@ def create_account_page():
         os.makedirs("qr_img", exist_ok=True)
         img.save(img_path)
 
-        st.success("Account created successfully!✅")
+        st.success("✅ สร้างบัญชีสำเร็จ")
 
-        st.markdown("🔎Scan this QR code with Google Authenticator🔎")
+        st.markdown("🔎แสกน QR Code นี้ด้วย Google Authenticator🔎")
         st.image(img_path, width=200)
 
 
@@ -375,7 +388,7 @@ def data_entry_page():
 # Function Monitor Data
 def view_reports_page():
 
-    st.title("📋Reports from Volunteer")
+    st.title("รายงานจากอาสาสมัคร")
     conn = connect_db()
     if conn:
         df = pd.read_sql("SELECT * FROM reports", conn)
@@ -396,68 +409,62 @@ def main():
     else:
         # Set default page if not set
         if 'page' not in st.session_state:
-            st.session_state.page = "🏠Home"
+            st.session_state.page = "หน้าหลัก"
 
         role = st.session_state.get("role", "")  # role from login
 
         # Prepare page options based on role
-        page_options = ["🏠Home"]
+        page_options = ["หน้าหลัก"]
         if role in ["admin", "dev"]:
-            page_options.extend(["💻Enter Data", "📋Reports"])
+            page_options.extend(["กรอกข้อมูล", "รายงาน"])
         elif role == "user":
-            page_options.append("📋Reports")
+            page_options.append("รายงาน")
         if role == "dev":
-            page_options.append("📝Create Account")
+            page_options.append("สร้างบัญชี")
 
         # Sidebar selection
-        page = st.sidebar.selectbox("📃Choose an option", page_options)
+        page = st.sidebar.selectbox("เมนู", page_options)
 
         # Page routing
-        if page == "🏠Home":
-            st.session_state.page = "🏠Home"
-            st.title(f"👋🏻Welcome, {st.session_state.username} !😊")
-            st.write("You are now logged in.✅")
-            st.write("Please select an option from the menu.📃")
+        if page == "หน้าหลัก":
+            st.session_state.page = "หน้าหลัก"
+            st.title(f"ยินดีต้อนรับคุณ {st.session_state.username}")
+            st.write("คุณเข้าสู่ระบบเรียบร้อย")
+            st.write("โปรดเลือกหน้าที่ต้องการจากเมนูทางด้านซ้าย")
 
             # confirm logout
             if st.session_state.get("confirm_logout", False):
-                st.warning("Are you sure you want to log out?")
+                st.warning("ต้องการออกจากระบบใช่หรือไม่")
                 
                 col1, col2 = st.columns([1, 1])
                 with col1:
-                    if st.button("✅ Sure", key="confirm_yes", use_container_width=True):
+                    if st.button("✅ ใช่", key="confirm_yes", use_container_width=True):
                         st.session_state.clear()
                         st.rerun()
                 with col2:
-                    if st.button("❌ Cancel", key="confirm_no", use_container_width=True):
+                    if st.button("❌ ไม่", key="confirm_no", use_container_width=True):
                         st.session_state.confirm_logout = False
                         st.rerun()
             else:
-                if st.button("🔓 Logout", key="logout_btn"):
+                if st.button("ออกจากระบบ", key="logout_btn"):
                     st.session_state.confirm_logout = True
                     st.rerun()
 
-        elif page == "💻Enter Data":
+        elif page == "กรอกข้อมูล":
             if role in ["admin", "dev"]:
-                st.session_state.page = "💻Enter Data"
+                st.session_state.page = "กรอกข้อมูล"
                 data_entry_page()
-            else:
-                st.error("You do not have access to this page.")
 
-        elif page == "📋Reports":
+        elif page == "รายงาน":
             if role in ["admin", "dev", "user"]:
-                st.session_state.page = "📋Reports"
+                st.session_state.page = "รายงาน"
                 view_reports_page()
-            else:
-                st.error("You do not have access to this page.")
 
-        elif page == "📝Create Account":
+        elif page == "สร้างบัญชี":
             if role == "dev":
-                st.session_state.page = "📝Create Account"
+                st.session_state.page = "สร้างบัญชี"
                 create_account_page()
-            else:
-                st.error("You do not have access to this page.")
-
+                
 
 if __name__ == "__main__":
     main()
