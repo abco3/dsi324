@@ -131,7 +131,7 @@ def login():
     # logging_in == True
     else:
         st.success("✅ Login successful! Redirecting...")
-        time.sleep(5)
+        time.sleep(1)
         st.session_state.logged_in = True
         st.session_state.page = "🏠Home"
         st.session_state.logging_in = False
