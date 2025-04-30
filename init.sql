@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS users (
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
 
 INSERT INTO users (email, password, role, otp_secret) 
-VALUES ('dev@hvbma.or.th', '54321', 'dev', '6F6TYHUJHHXOFYTZTHQYRGKNMZ3LKZPD');
+VALUES ('dev@hvbma.or.th', '111', 'dev', 'HIRVZ5VCQP655R5RWNUX3FY4WP3I3ZTM');
 
 CREATE TABLE IF NOT EXISTS reports (
     id INT AUTO_INCREMENT PRIMARY KEY,

@@ -2,8 +2,8 @@
 
     docker exec -it dsi324-mysql-1 mysql -u root -p --default-character-set=utf8mb4
 
--- use adduser.py:
+-- use create_acc_manual.py:
 
     docker compose exec app bash
 
-    python create_acc.py
+    python create_acc_manual.py
