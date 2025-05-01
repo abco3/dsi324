@@ -1,50 +1,65 @@
 import streamlit as st
 import datetime
-from list import districts_bangkok, subdistricts_by_district
-from utils.db import insert_data_to_db
+from datetime import datetime
+from utils.db import get_volunteer_by_id, insert_data_to_db
+
+
+# calculate age
+def calculate_age(birth_date):
+    today = datetime.today()
+    age = today.year - birth_date.year - ((today.month, today.day) < (birth_date.month, birth_date.day))
+    return age
 
 
 # data entry page
 def data_entry_page():
-    st.title("แบบรายงานผลการปฏิบัติงานอาสาสมัครสาธารณสุขกรุงเทพมหานคร ด้านการป้องกันและแก้ไขปัญหายาเสพติด")
-    st.subheader("กรอกข้อมูลทั่วไป")
+    st.subheader("แบบรายงานผลการปฏิบัติงานอาสาสมัครสาธารณสุขกรุงเทพมหานคร ด้านการป้องกันและแก้ไขปัญหายาเสพติด")
 
-    col1, col2 = st.columns(2)
+    volunteer = st.session_state.get("selected_volunteer")
+    if not volunteer:
+        st.error("ไม่พบข้อมูลอาสาสมัคร")
+        return
+    
+    st.subheader("ข้อมูลอาสาสมัคร")
+
+    col_id = st.columns(1)[0]
+    with col_id:
+        st.markdown(f"**รหัสอาสาสมัคร:** {volunteer['volunteer_id']}")
+
+    col1, col2, col3 = st.columns(3)
     with col1:
-        volunteer_id = st.text_input("เลขประจำตัวอาสาสมัคร")
-        if volunteer_id and not volunteer_id.isdigit():
-            st.error("กรุณากรอกเฉพาะตัวเลขสำหรับเลขประจำตัวอาสาสมัคร")
-        first_name = st.text_input("ชื่อ")
-        phone_number = st.text_input("เบอร์โทรศัพท์")
+        st.markdown(f"**คำนำหน้า:** {volunteer['prefix']}")
+        st.markdown(f"**เบอร์โทร:** {volunteer['phone_number']}")
         
     with col2:
-        prefix = st.selectbox("คำนำหน้า", ["นาย", "นาง", "นางสาว"])
-        last_name = st.text_input("นามสกุล")
-        community = st.text_input("ชุมชน")
+        st.markdown(f"**ชื่อ:** {volunteer['first_name']}")
+        st.markdown(f"**ชุมชน:** {volunteer['community']}")
 
-    col3, col4 = st.columns(2)
     with col3:
-        birth_date = st.date_input(
-            "วันเกิด",
-            value=datetime.date(2000, 1, 1),               
-            min_value=datetime.date(1900, 1, 1),          
-            max_value=datetime.date.today()                
-        )
+        st.markdown(f"**นามสกุล:** {volunteer['last_name']}")
+        st.markdown(f"**ศูนย์บริการ:** {volunteer['service']}")
+
+    # age from birthday
+    birth_date = volunteer["birth_date"]
+    # check --datetime or not
+    if isinstance(birth_date, datetime):
+        birth_date = birth_date.date()
+    age = calculate_age(birth_date)
+
+    col4, col5, col6 = st.columns(3)
     with col4:
-        gender = st.radio("เพศ", ["ชาย", "หญิง"])
+        st.markdown(f"**เพศ:** {volunteer['gender']}")
+        st.markdown(f"**แขวง/ตำบล:** {volunteer['sub_district']}")
 
-    district_list = list(subdistricts_by_district.keys())
-    district = st.selectbox("เขต/อำเภอ", district_list)
-
-    selected_district = st.session_state.get("district")
-    if district:
-         sub_district_options = subdistricts_by_district.get(district, [])
-    else:
-        sub_district_options = []
-    sub_district = st.selectbox("แขวง/ตำบล", sub_district_options, key="sub_district")
-    province = st.selectbox("จังหวัด", ["กรุงเทพมหานคร"])
+    with col5:
+        st.markdown(f"**วันเกิด:** {birth_date.strftime('%d/%m/%Y')}")
+        st.markdown(f"**เขต/อำเภอ:** {volunteer['district']}")
+    with col6:
+        st.markdown(f"**อายุ:** {age} ปี")
+        st.markdown(f"**จังหวัด:** {volunteer['province']}")
 
     st.subheader("การดำเนินงาน")
+    
     operation_month = st.selectbox("ประจำเดือน", [
         "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
         "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
@@ -160,17 +175,19 @@ def data_entry_page():
 
     if st.button("บันทึกข้อมูลอาสาสมัคร"):
         data = {
-            "volunteer_id": volunteer_id,
-            "prefix": prefix,
-            "first_name": first_name,
-            "last_name": last_name,
-            "phone_number": phone_number,
-            "community": community,
-            "birth_date": birth_date.isoformat() if birth_date else None,
-            "gender": gender,
-            "sub_district": st.session_state.sub_district,
-            "district": district,
-            "province": province,
+            "volunteer_id": volunteer["volunteer_id"],
+            "prefix": volunteer["prefix"],
+            "first_name": volunteer["first_name"],
+            "last_name": volunteer["last_name"],
+            "phone_number": volunteer["phone_number"],
+            "community": volunteer["community"],
+            "service": volunteer["service"],
+            "birth_date": volunteer["birth_date"],
+            "gender": volunteer["gender"],
+            "age": age,
+            "sub_district": volunteer["sub_district"],
+            "district": volunteer["district"],
+            "province": volunteer["province"],
             "operation_month": operation_month,
             "operation_year": operation_year,
             "q1_prevention1_times": st.session_state.q1_prevention1_times,

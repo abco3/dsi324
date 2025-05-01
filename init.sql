@@ -1,3 +1,6 @@
+SET NAMES utf8mb4;
+SET CHARACTER SET utf8mb4;
+
 CREATE DATABASE IF NOT EXISTS test324
   CHARACTER SET utf8mb4
   COLLATE utf8mb4_general_ci;
@@ -20,20 +23,46 @@ CREATE TABLE IF NOT EXISTS users (
 INSERT INTO users (email, password, role, otp_secret) 
 VALUES ('dev@hvbma.or.th', '111', 'dev', 'HIRVZ5VCQP655R5RWNUX3FY4WP3I3ZTM');
 
+CREATE TABLE IF NOT EXISTS volunteers (
+    volunteer_id BIGINT(11) PRIMARY KEY,
+    prefix VARCHAR(10) NOT NULL,       
+    first_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100) NOT NULL,
+    gender VARCHAR(10) NOT NULL,
+    birth_date DATE NOT NULL,
+    phone_number VARCHAR(20) NOT NULL,
+    community VARCHAR(255) NOT NULL,
+    service VARCHAR(255) NOT NULL,
+    sub_district VARCHAR(100) NOT NULL,
+    district VARCHAR(100) NOT NULL,
+    province VARCHAR(100) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+
+INSERT INTO volunteers (volunteer_id, prefix, first_name, last_name, gender, birth_date, phone_number, community, service, sub_district, district, province) 
+VALUES 
+('65246512777', 'นาย', 'นวัตกรณ์', 'แสงศิลา', 'ชาย', '1996-03-15', '0834456782', 'บ้านหนองบัว', '42คลองไรย', 'นวลจันทร์', 'บึงกุ่ม', 'กรุงเทพมหานคร'),
+('65246516538', 'นางสาว', 'ศิริลักษณ์', 'ทองสุข', 'หญิง', '1990-08-25', '0812345678', 'หมู่บ้านรุ่งเรือง', '28โรงเรียนวัดดอน', 'บางรัก', 'บางรัก', 'กรุงเทพมหานคร'),
+('65246514371', 'นาย', 'อนันต์', 'โชคดี', 'ชาย', '1985-01-12', '0897654321', 'ชุมชนวัดใหม่', '31ซอยสาธุประดิษฐ์', 'ยานนาวา', 'สาทร', 'กรุงเทพมหานคร'),
+('65246513113', 'นาง', 'สุนีย์', 'ใจดี', 'หญิง', '1975-05-30', '0861112233', 'หมู่บ้านสุขใจ', '12หน้าวัด', 'ลาดพร้าว', 'ลาดพร้าว', 'กรุงเทพมหานคร'),
+('65246519781', 'นาย', 'ปิยวัฒน์', 'มีทรัพย์', 'ชาย', '1998-11-09', '0823334455', 'ชุมชนบางโพ', '9ใต้สะพานบางโพ', 'บางซื่อ', 'บางซื่อ', 'กรุงเทพมหานคร');
+
 CREATE TABLE IF NOT EXISTS reports (
     id INT AUTO_INCREMENT PRIMARY KEY,
 
     -- ข้อมูลส่วนตัว
-    volunteer_id VARCHAR(20) NOT NULL,
+    volunteer_id BIGINT(11) NOT NULL,
     prefix VARCHAR(10) NOT NULL,
     first_name VARCHAR(100) NOT NULL,
     last_name VARCHAR(100) NOT NULL,
-    birth_date DATE NOT NULL,
-    gender VARCHAR(10) NOT NULL,
     phone_number VARCHAR(20) NOT NULL,
+    community VARCHAR(255) NOT NULL,
+    service VARCHAR(255) NOT NULL,
+    gender VARCHAR(10) NOT NULL,
+    birth_date DATE NOT NULL,
+    age INT NOT NULL,
 
     -- ข้อมูลพื้นที่
-    community VARCHAR(255) NOT NULL,
     sub_district VARCHAR(100) NOT NULL,
     district VARCHAR(100) NOT NULL,
     province VARCHAR(100) NOT NULL,

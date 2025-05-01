@@ -9,15 +9,20 @@ def connect_db():
         conn = mysql.connector.connect(
             host="mysql",
             user="root",
-            password="1234",  
-            database="test324"  
+            password="1234",
+            database="test324",
+            use_unicode=True
         )
         if conn.is_connected():
-            print("Connected to MySQL database")
+            cursor = conn.cursor()
+            cursor.execute("SET NAMES utf8mb4;")
+            cursor.execute("SET CHARACTER SET utf8mb4;")
+            print("Connected to MySQL database with utf8mb4 encoding")
         return conn
     except Error as e:
         print(f"Error while connecting to MySQL: {e}")
         return None
+
 
 
 # insert data
@@ -82,3 +87,36 @@ def check_user_credentials(email, password, otp_code):
     finally:
         cursor.close()
         conn.close()
+
+
+#for search page
+def get_volunteer_by_id(volunteer_id):
+    try:
+        conn = connect_db()
+        cursor = conn.cursor(dictionary=True)
+        query = "SELECT * FROM volunteers WHERE volunteer_id = %s"
+        cursor.execute(query, (volunteer_id,))
+        result = cursor.fetchone()
+        return result
+    except Error as e:
+        print(f"Error while fetching volunteer: {e}")
+        return None
+    finally:
+        if conn.is_connected():
+            cursor.close()
+            conn.close()
+
+def get_all_volunteer_ids_and_names():
+    try:
+        conn = connect_db()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT volunteer_id, first_name, last_name FROM volunteers")
+        results = cursor.fetchall()
+        return results
+    except Error as e:
+        print(f"Error while fetching volunteers: {e}")
+        return []
+    finally:
+        if conn.is_connected():
+            cursor.close()
+            conn.close()
