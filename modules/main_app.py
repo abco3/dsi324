@@ -4,6 +4,7 @@ from modules.data_entry import data_entry_page
 from modules.view_reports import view_reports_page
 from modules.create_account import create_account_page
 from modules.search_volunteer import search_volunteer_page
+from modules.view_volunteer_data import view_volunteer_data_page
 
 def main():
     if 'logged_in' not in st.session_state or not st.session_state.logged_in:
@@ -18,16 +19,14 @@ def main():
     # create menu
     page_options = ["หน้าหลัก"]
     if role in ["admin", "dev"]:
-        page_options.append("ค้นหาอาสาสมัคร")
+        page_options.extend(["รายงาน", "ค้นหา", "ตรวจสอบ"])
 
-    #temporary add pge
+    #temporary add page
     if st.session_state.page == "กรอกข้อมูล":
-        insert_index = page_options.index("ค้นหาอาสาสมัคร") + 1
+        insert_index = page_options.index("ค้นหา") + 1
         page_options.insert(insert_index, "กรอกข้อมูล")
 
-    if role in ["admin", "dev"]:
-        page_options.append("รายงาน")
-    elif role == "user":
+    if role == "user":
         page_options.append("รายงาน")
     if role == "dev":
         page_options.append("สร้างบัญชี")
@@ -75,10 +74,14 @@ def main():
         if role in ["admin", "dev", "user"]:
             view_reports_page()
 
-    elif st.session_state.page == "ค้นหาอาสาสมัคร":
+    elif st.session_state.page == "ค้นหา":
         if role in ["admin", "dev"]:
             search_volunteer_page()
 
     elif st.session_state.page == "สร้างบัญชี":
         if role == "dev":
             create_account_page()
+
+    elif st.session_state.page == "ตรวจสอบ":
+        if role in ["admin", "dev"]:
+            view_volunteer_data_page()

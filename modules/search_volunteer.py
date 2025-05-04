@@ -11,7 +11,7 @@ def search_volunteer_page():
         return
 
     options = [f"{v['volunteer_id']} - {v['first_name']} {v['last_name']}" for v in volunteers]
-    selected = st.selectbox("ค้นหาเลขอาสาสมัครหรือชื่อ", options)
+    selected = st.selectbox("ระบุเลขประจำตัวหรือชื่อของอาสาสมัคร", options)
 
     if st.button("ค้นหา"):
         volunteer_id = int(selected.split(" - ")[0])

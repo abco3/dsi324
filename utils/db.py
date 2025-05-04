@@ -15,6 +15,7 @@ def connect_db():
         )
         if conn.is_connected():
             cursor = conn.cursor()
+            cursor.execute("SET time_zone = '+07:00'")
             cursor.execute("SET NAMES utf8mb4;")
             cursor.execute("SET CHARACTER SET utf8mb4;")
             print("Connected to MySQL database with utf8mb4 encoding")
@@ -89,7 +90,7 @@ def check_user_credentials(email, password, otp_code):
         conn.close()
 
 
-#for search page
+#for search page & view volunteer data page
 def get_volunteer_by_id(volunteer_id):
     try:
         conn = connect_db()
@@ -120,3 +121,9 @@ def get_all_volunteer_ids_and_names():
         if conn.is_connected():
             cursor.close()
             conn.close()
+
+def get_reports_by_volunteer_id(volunteer_id):
+    with connect_db() as conn:
+        with conn.cursor(dictionary=True) as cursor:
+            cursor.execute("SELECT * FROM reports WHERE volunteer_id = %s ORDER BY created_at ASC", (volunteer_id,))
+            return cursor.fetchall()

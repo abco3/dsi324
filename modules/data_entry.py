@@ -20,11 +20,11 @@ def data_entry_page():
         st.error("ไม่พบข้อมูลอาสาสมัคร")
         return
     
-    st.subheader("ข้อมูลอาสาสมัคร")
+    st.subheader("ข้อมูลทั่วไป")
 
     col_id = st.columns(1)[0]
     with col_id:
-        st.markdown(f"**รหัสอาสาสมัคร:** {volunteer['volunteer_id']}")
+        st.markdown(f"**เลขประจำตัวอาสาสมัคร:** {volunteer['volunteer_id']}")
 
     col1, col2, col3 = st.columns(3)
     with col1:
