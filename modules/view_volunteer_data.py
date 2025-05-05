@@ -55,13 +55,13 @@ def view_volunteer_data_page():
         col4, col5, col6 = st.columns(3)
         with col4:
             st.markdown(f"**เพศ:** {volunteer['gender']}")
-            st.markdown(f"**แขวง/ตำบล:** {volunteer['sub_district']}")
-        with col5:
-            st.markdown(f"**วันเกิด:** {birth_date.strftime('%d/%m/%Y')}")
-            st.markdown(f"**เขต/อำเภอ:** {volunteer['district']}")
-        with col6:
-            st.markdown(f"**อายุ:** {age} ปี")
             st.markdown(f"**จังหวัด:** {volunteer['province']}")
+
+        with col5:
+            st.markdown(f"**แขวง/ตำบล:** {volunteer['sub_district']}")            
+
+        with col6:
+            st.markdown(f"**เขต/อำเภอ:** {volunteer['district']}")
 
         # report deatails
         st.subheader("รายงานผลการปฏิบัติงาน")
@@ -76,8 +76,8 @@ def view_volunteer_data_page():
                     created_date = report["created_at"].strftime("%d/%m/%Y เวลา %H:%M") if isinstance(report["created_at"], (datetime, str)) else str(report["created_at"])
                     st.markdown(f"**วันที่กรอกข้อมูล:** {created_date}")
 
-                    # del created_at from dict
-                    report_data = {k: v for k, v in report.items() if k != "created_at"}
+                    # del created_at, birth_date, age from dict
+                    report_data = {k: v for k, v in report.items() if k not in ["created_at", "birth_date", "age"]}
 
                     df = pd.DataFrame([report_data])
                     df.set_index('id', inplace=True)

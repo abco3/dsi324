@@ -49,14 +49,13 @@ def data_entry_page():
     col4, col5, col6 = st.columns(3)
     with col4:
         st.markdown(f"**เพศ:** {volunteer['gender']}")
-        st.markdown(f"**แขวง/ตำบล:** {volunteer['sub_district']}")
-
-    with col5:
-        st.markdown(f"**วันเกิด:** {birth_date.strftime('%d/%m/%Y')}")
-        st.markdown(f"**เขต/อำเภอ:** {volunteer['district']}")
-    with col6:
-        st.markdown(f"**อายุ:** {age} ปี")
         st.markdown(f"**จังหวัด:** {volunteer['province']}")
+        
+    with col5:
+        st.markdown(f"**แขวง/ตำบล:** {volunteer['sub_district']}")
+        
+    with col6:
+        st.markdown(f"**เขต/อำเภอ:** {volunteer['district']}")      
 
     st.subheader("การดำเนินงาน")
     
@@ -173,7 +172,7 @@ def data_entry_page():
     st.subheader("หมายเหตุ")
     suggestions_note = st.text_area("โปรดระบุ", key="notes")
 
-    if st.button("บันทึกข้อมูลอาสาสมัคร"):
+    if st.button("บันทึกข้อมูล"):
         data = {
             "volunteer_id": volunteer["volunteer_id"],
             "prefix": volunteer["prefix"],
@@ -214,7 +213,9 @@ def data_entry_page():
             "q6_others": suggestions,
             "notes": suggestions_note
         }
-        st.write("ข้อมูลที่กรอก:")
-        st.write(data)
+
+        display_data = {k: v for k, v in data.items() if k not in ["age", "birth_date"]}
+        st.write("ข้อมูลที่กรอก :")
+        st.write(display_data)
 
         insert_data_to_db(data)
