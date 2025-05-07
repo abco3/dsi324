@@ -1,5 +1,6 @@
 import streamlit as st
 from modules.login import login_page
+from modules.otp import otp_page
 from modules.data_entry import data_entry_page
 from modules.view_reports import view_reports_page
 from modules.create_account import create_account_page
@@ -8,7 +9,11 @@ from modules.view_volunteer_data import view_volunteer_data_page
 
 def main():
     if 'logged_in' not in st.session_state or not st.session_state.logged_in:
-        login_page()
+
+        if st.session_state.get("page") == "otp":
+            otp_page()
+        else:
+            login_page()
         return
 
     if 'page' not in st.session_state:
@@ -33,7 +38,7 @@ def main():
 
     # selectbox check
     if st.session_state.page not in page_options:
-        st.session_state.page = "หน้าหลัก"  # Set to default if the page is not found in options
+        st.session_state.page = "หน้าหลัก"  # default
 
     selected_page = st.sidebar.selectbox("เมนู", page_options, index=page_options.index(st.session_state.page))
     if selected_page != st.session_state.page:

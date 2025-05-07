@@ -1,7 +1,7 @@
 import streamlit as st
 import datetime
 from datetime import datetime
-from utils.db import get_volunteer_by_id, insert_data_to_db
+from utils.db import insert_data_to_db
 
 
 # calculate age

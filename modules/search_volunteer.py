@@ -21,7 +21,7 @@ def search_volunteer_page():
             st.success("เข้าสู่หน้ากรอกข้อมูล ...")
             st.session_state.selected_volunteer = volunteer
             st.session_state.page = "กรอกข้อมูล" 
-            time.sleep(1)
+            time.sleep(0.3)
             st.rerun()
         else:
             st.error("❌ ไม่พบข้อมูลอาสาสมัครในระบบ")

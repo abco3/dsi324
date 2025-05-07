@@ -51,40 +51,40 @@ def insert_data_to_db(data):
             conn.close()
 
 
-# check user credentials
-def check_user_credentials(email, password, otp_code):
+# check email, password
+def verify_user_password(email, password):
     conn = connect_db()
     if conn is None:
         return False, None
 
     try:
         cursor = conn.cursor(dictionary=True)
-        query = "SELECT password, otp_secret, role FROM users WHERE email = %s"
+        query = "SELECT password, role FROM users WHERE email = %s"
         cursor.execute(query, (email,))
         result = cursor.fetchone()
-
-        if result is None:
-            print("No user found.")
-            return False, None
-        
-        if result['password'] != password:
-            print(f"Password mismatch. Stored: {result['password']} Input: {password}")
-            return False, None
-
-        # OTP check
-        totp = pyotp.TOTP(result['otp_secret'])
-        otp_generated = totp.now()
-        print(f"Generated OTP: {otp_generated} - Input OTP: {otp_code}")
-
-        if not totp.verify(otp_code):
-            print("OTP verification failed.")
-            return False, None
-
-        return True, result['role']
-
-    except Error as e:
-        print(f"Error while checking credentials: {e}")
+        if result and result['password'] == password:
+            return True, result['role']
         return False, None
+    finally:
+        cursor.close()
+        conn.close()
+
+
+# check otp
+def verify_otp(email, otp_code):
+    conn = connect_db()
+    if conn is None:
+        return False
+
+    try:
+        cursor = conn.cursor(dictionary=True)
+        query = "SELECT otp_secret FROM users WHERE email = %s"
+        cursor.execute(query, (email,))
+        result = cursor.fetchone()
+        if result:
+            totp = pyotp.TOTP(result['otp_secret'])
+            return totp.verify(otp_code)
+        return False
     finally:
         cursor.close()
         conn.close()
