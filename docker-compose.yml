@@ -12,6 +12,8 @@ services:
       - mysql
     volumes:
       - .:/app  
+    networks:
+      - shared-net
       
   mysql:
     image: mysql:8.0
@@ -23,6 +25,12 @@ services:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       - "3307:3306"
+    networks:
+      - shared-net
 
 volumes:
   mysql-data:
+
+networks:
+  shared-net:
+    external: true
