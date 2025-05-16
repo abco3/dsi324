@@ -1,22 +1,13 @@
 import streamlit as st
-import datetime
-from datetime import datetime
 from utils.db import insert_data_to_db
-
-
-# calculate age
-def calculate_age(birth_date):
-    today = datetime.today()
-    age = today.year - birth_date.year - ((today.month, today.day) < (birth_date.month, birth_date.day))
-    return age
 
 
 # data entry page
 def data_entry_page():
     st.subheader("แบบรายงานผลการปฏิบัติงานอาสาสมัครสาธารณสุขกรุงเทพมหานคร ด้านการป้องกันและแก้ไขปัญหายาเสพติด")
 
-    volunteer = st.session_state.get("selected_volunteer")
-    if not volunteer:
+    reports = st.session_state.get("selected_volunteer")
+    if not reports:
         st.error("ไม่พบข้อมูลอาสาสมัคร")
         return
     
@@ -24,38 +15,19 @@ def data_entry_page():
 
     col_id = st.columns(1)[0]
     with col_id:
-        st.markdown(f"**เลขประจำตัวอาสาสมัคร:** {volunteer['volunteer_id']}")
+        st.markdown(f"**เลขประจำตัวอาสาสมัคร:** {reports['volunteer_id']}")
 
     col1, col2, col3 = st.columns(3)
     with col1:
-        st.markdown(f"**คำนำหน้า:** {volunteer['prefix']}")
-        st.markdown(f"**เบอร์โทร:** {volunteer['phone_number']}")
-        
+        st.markdown(f"**คำนำหน้า:** {reports['prefix']}")
+        st.markdown(f"**ชุมชน:** {reports['community']}")        
     with col2:
-        st.markdown(f"**ชื่อ:** {volunteer['first_name']}")
-        st.markdown(f"**ชุมชน:** {volunteer['community']}")
+        st.markdown(f"**ชื่อ:** {reports['first_name']}")
+        st.markdown(f"**แขวง/ตำบล:** {reports['sub_district']}")
 
     with col3:
-        st.markdown(f"**นามสกุล:** {volunteer['last_name']}")
-        st.markdown(f"**ศูนย์บริการ:** {volunteer['service']}")
-
-    # age from birthday
-    birth_date = volunteer["birth_date"]
-    # check --datetime or not
-    if isinstance(birth_date, datetime):
-        birth_date = birth_date.date()
-    age = calculate_age(birth_date)
-
-    col4, col5, col6 = st.columns(3)
-    with col4:
-        st.markdown(f"**เพศ:** {volunteer['gender']}")
-        st.markdown(f"**จังหวัด:** {volunteer['province']}")
-        
-    with col5:
-        st.markdown(f"**แขวง/ตำบล:** {volunteer['sub_district']}")
-        
-    with col6:
-        st.markdown(f"**เขต/อำเภอ:** {volunteer['district']}")      
+        st.markdown(f"**นามสกุล:** {reports['last_name']}")
+        st.markdown(f"**เขต/อำเภอ:** {reports['district']}")   
 
     st.subheader("การดำเนินงาน")
     
@@ -172,21 +144,20 @@ def data_entry_page():
     st.subheader("หมายเหตุ")
     suggestions_note = st.text_area("โปรดระบุ", key="notes")
 
+    if suggestions == "":
+        suggestions = None
+    if suggestions_note == "":
+        suggestions_note = None
+
     if st.button("บันทึกข้อมูล"):
         data = {
-            "volunteer_id": volunteer["volunteer_id"],
-            "prefix": volunteer["prefix"],
-            "first_name": volunteer["first_name"],
-            "last_name": volunteer["last_name"],
-            "phone_number": volunteer["phone_number"],
-            "community": volunteer["community"],
-            "service": volunteer["service"],
-            "birth_date": volunteer["birth_date"],
-            "gender": volunteer["gender"],
-            "age": age,
-            "sub_district": volunteer["sub_district"],
-            "district": volunteer["district"],
-            "province": volunteer["province"],
+            "volunteer_id": reports["volunteer_id"],
+            "prefix": reports["prefix"],
+            "first_name": reports["first_name"],
+            "last_name": reports["last_name"],
+            "community": reports["community"],
+            "sub_district": reports["sub_district"],
+            "district": reports["district"],
             "operation_month": operation_month,
             "operation_year": operation_year,
             "q1_prevention1_times": st.session_state.q1_prevention1_times,

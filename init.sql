@@ -21,7 +21,9 @@ CREATE TABLE IF NOT EXISTS users (
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
 
 INSERT INTO users (email, password, role, otp_secret) 
-VALUES ('dev@hvbma.or.th', '111', 'dev', 'HIRVZ5VCQP655R5RWNUX3FY4WP3I3ZTM');
+VALUES ('dev@hvbma.or.th', '1', 'dev', 'HIRVZ5VCQP655R5RWNUX3FY4WP3I3ZTM'),
+('user@hvbma.or.th', '1', 'user', '26CHFTL7NFF2BVAPNVCDCGIKTTT3X6QG'),
+('admin@hvbma.or.th', '1', 'admin', 'DT7QEYOIUXDZOGAWX77UZOGNIUFDU5TK');
 
 CREATE TABLE IF NOT EXISTS volunteers (
     volunteer_id BIGINT(11) PRIMARY KEY,
@@ -38,14 +40,6 @@ CREATE TABLE IF NOT EXISTS volunteers (
     province VARCHAR(100) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
-
-INSERT INTO volunteers (volunteer_id, prefix, first_name, last_name, gender, birth_date, phone_number, community, service, sub_district, district, province) 
-VALUES 
-('65246512777', 'นาย', 'นวัตกรณ์', 'แสงศิลา', 'ชาย', '1996-03-15', '0834456782', 'สันติภาพ', '41 คลองเตย', 'คลองตัน', 'คลองเตย', 'กรุงเทพมหานคร'),
-('65246516538', 'นางสาว', 'ศิริลักษณ์', 'ทองสุข', 'หญิง', '1990-08-25', '0812345678', 'วัดช่องลม', '41 คลองเตย', 'คลองเตย', 'คลองเตย', 'กรุงเทพมหานคร'),
-('65246514371', 'นาย', 'อนันต์', 'โชคดี', 'ชาย', '1985-01-12', '0897654321', 'บูรพา', '41 คลองเตย', 'พระโขนง', 'คลองเตย', 'กรุงเทพมหานคร'),
-('65246513113', 'นาง', 'สุนีย์', 'ใจดี', 'หญิง', '1975-05-30', '0861112233', 'เจริญผล', '41 คลองเตย', 'คลองเตย', 'คลองเตย', 'กรุงเทพมหานคร'),
-('65246519781', 'นาย', 'ปิยวัฒน์', 'มีทรัพย์', 'ชาย', '1998-11-09', '0823334455', 'แสงทอง', '41 คลองเตย', 'พระโขนง', 'คลองเตย', 'กรุงเทพมหานคร');
 
 CREATE TABLE IF NOT EXISTS reports (
     id INT AUTO_INCREMENT PRIMARY KEY,

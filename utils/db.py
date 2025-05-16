@@ -89,41 +89,43 @@ def verify_otp(email, otp_code):
         cursor.close()
         conn.close()
 
-
-#for search page & view volunteer data page
-def get_volunteer_by_id(volunteer_id):
-    try:
-        conn = connect_db()
-        cursor = conn.cursor(dictionary=True)
-        query = "SELECT * FROM volunteers WHERE volunteer_id = %s"
-        cursor.execute(query, (volunteer_id,))
-        result = cursor.fetchone()
-        return result
-    except Error as e:
-        print(f"Error while fetching volunteer: {e}")
-        return None
-    finally:
-        if conn.is_connected():
-            cursor.close()
-            conn.close()
-
-def get_all_volunteer_ids_and_names():
-    try:
-        conn = connect_db()
-        cursor = conn.cursor(dictionary=True)
-        cursor.execute("SELECT volunteer_id, first_name, last_name FROM volunteers")
-        results = cursor.fetchall()
-        return results
-    except Error as e:
-        print(f"Error while fetching volunteers: {e}")
-        return []
-    finally:
-        if conn.is_connected():
-            cursor.close()
-            conn.close()
-
+# select reports
 def get_reports_by_volunteer_id(volunteer_id):
     with connect_db() as conn:
         with conn.cursor(dictionary=True) as cursor:
             cursor.execute("SELECT * FROM reports WHERE volunteer_id = %s ORDER BY created_at ASC", (volunteer_id,))
             return cursor.fetchall()
+
+def get_unique_volunteer_ids_from_reports():
+    conn = connect_db()
+    cursor = conn.cursor(dictionary=True)
+
+    query = """
+    SELECT DISTINCT volunteer_id, first_name, last_name
+    FROM reports
+    ORDER BY volunteer_id
+    """
+    cursor.execute(query)
+    results = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+    return results
+
+def get_latest_report_by_volunteer_id(volunteer_id):
+    conn = connect_db()
+    cursor = conn.cursor(dictionary=True)
+
+    query = """
+    SELECT *
+    FROM reports
+    WHERE volunteer_id = %s
+    ORDER BY created_at DESC
+    LIMIT 1
+    """
+    cursor.execute(query, (volunteer_id,))
+    result = cursor.fetchone()
+
+    cursor.close()
+    conn.close()
+    return result
