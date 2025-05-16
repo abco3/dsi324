@@ -1,12 +1,14 @@
 import streamlit as st
 from modules.login import login_page
 from modules.otp import otp_page
-from modules.data_entry import data_entry_page
-from modules.view_reports import view_reports_page
-from modules.create_account import create_account_page
+from modules.home import home_page
 from modules.search_volunteer import search_volunteer_page
+from modules.view_reports import view_reports_page
 from modules.view_volunteer_data import view_volunteer_data_page
+from modules.data_entry import data_entry_page
 from modules.upload_data import upload_data_page
+from modules.create_account import create_account_page
+
 
 def main():
     if 'logged_in' not in st.session_state or not st.session_state.logged_in:
@@ -48,25 +50,7 @@ def main():
 
     # Routing
     if st.session_state.page == "หน้าหลัก":
-        st.title(f"ยินดีต้อนรับคุณ {st.session_state.username}")
-        st.write("คุณเข้าสู่ระบบเรียบร้อย")
-        st.write("โปรดเลือกหน้าที่ต้องการจากเมนูทางด้านซ้าย")
-
-        if st.session_state.get("confirm_logout", False):
-            st.warning("ต้องการออกจากระบบใช่หรือไม่")
-            col1, col2 = st.columns([1, 1])
-            with col1:
-                if st.button("✅ ใช่", key="confirm_yes", use_container_width=True):
-                    st.session_state.clear()
-                    st.rerun()
-            with col2:
-                if st.button("❌ ไม่", key="confirm_no", use_container_width=True):
-                    st.session_state.confirm_logout = False
-                    st.rerun()
-        else:
-            if st.button("ออกจากระบบ", key="logout_btn"):
-                st.session_state.confirm_logout = True
-                st.rerun()
+        home_page()
 
     elif st.session_state.page == "กรอกข้อมูล":
         if role in ["admin", "dev"] and "selected_volunteer" in st.session_state:
