@@ -55,17 +55,11 @@ CREATE TABLE IF NOT EXISTS reports (
     prefix VARCHAR(10) NOT NULL,
     first_name VARCHAR(100) NOT NULL,
     last_name VARCHAR(100) NOT NULL,
-    phone_number VARCHAR(20) NOT NULL,
     community VARCHAR(255) NOT NULL,
-    service VARCHAR(255) NOT NULL,
-    gender VARCHAR(10) NOT NULL,
-    birth_date DATE NOT NULL,
-    age INT NOT NULL,
 
     -- ข้อมูลพื้นที่
     sub_district VARCHAR(100) NOT NULL,
     district VARCHAR(100) NOT NULL,
-    province VARCHAR(100) NOT NULL,
 
     -- ข้อมูลเดือนและปีที่ปฏิบัติงาน
     operation_month VARCHAR(20) NOT NULL,

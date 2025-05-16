@@ -6,6 +6,7 @@ from modules.view_reports import view_reports_page
 from modules.create_account import create_account_page
 from modules.search_volunteer import search_volunteer_page
 from modules.view_volunteer_data import view_volunteer_data_page
+from modules.upload_data import upload_data_page
 
 def main():
     if 'logged_in' not in st.session_state or not st.session_state.logged_in:
@@ -24,7 +25,7 @@ def main():
     # create menu
     page_options = ["หน้าหลัก"]
     if role in ["admin", "dev"]:
-        page_options.extend(["รายงาน", "ค้นหา", "ตรวจสอบ"])
+        page_options.extend(["รายงาน", "ค้นหา", "ตรวจสอบ", "อัปโหลดข้อมูล"])
 
     #temporary add page
     if st.session_state.page == "กรอกข้อมูล":
@@ -90,3 +91,7 @@ def main():
     elif st.session_state.page == "ตรวจสอบ":
         if role in ["admin", "dev"]:
             view_volunteer_data_page()
+    
+    elif st.session_state.page == "อัปโหลดข้อมูล":
+        if role in ["admin", "dev"]:
+            upload_data_page()

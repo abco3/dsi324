@@ -1,8 +1,6 @@
 import mysql.connector
 import pyotp
 import qrcode
-import os
-from getpass import getpass
 from datetime import datetime
 from pathlib import Path
 
