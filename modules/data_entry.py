@@ -6,8 +6,8 @@ from utils.db import insert_data_to_db
 def data_entry_page():
     st.subheader("แบบรายงานผลการปฏิบัติงานอาสาสมัครสาธารณสุขกรุงเทพมหานคร ด้านการป้องกันและแก้ไขปัญหายาเสพติด")
 
-    reports = st.session_state.get("selected_volunteer")
-    if not reports:
+    volunteer = st.session_state.get("selected_volunteer")
+    if not volunteer:
         st.error("ไม่พบข้อมูลอาสาสมัคร")
         return
     
@@ -15,19 +15,30 @@ def data_entry_page():
 
     col_id = st.columns(1)[0]
     with col_id:
-        st.markdown(f"**เลขประจำตัวอาสาสมัคร:** {reports['volunteer_id']}")
+        st.markdown(f"**เลขประจำตัวอาสาสมัคร:** {volunteer['volunteer_id']}")
 
     col1, col2, col3 = st.columns(3)
     with col1:
-        st.markdown(f"**คำนำหน้า:** {reports['prefix']}")
-        st.markdown(f"**ชุมชน:** {reports['community']}")        
+        st.markdown(f"**คำนำหน้า:** {volunteer['prefix']}")
+        st.markdown(f"**เบอร์โทร:** {volunteer['phone_number']}")      
     with col2:
-        st.markdown(f"**ชื่อ:** {reports['first_name']}")
-        st.markdown(f"**แขวง/ตำบล:** {reports['sub_district']}")
+        st.markdown(f"**ชื่อ:** {volunteer['first_name']}")
+        st.markdown(f"**ชุมชน:** {volunteer['community']}")
 
     with col3:
-        st.markdown(f"**นามสกุล:** {reports['last_name']}")
-        st.markdown(f"**เขต/อำเภอ:** {reports['district']}")   
+        st.markdown(f"**นามสกุล:** {volunteer['last_name']}")
+        st.markdown(f"**ศูนย์บริการ:** {volunteer['service']}")
+
+    col4, col5, col6 = st.columns(3)
+    with col4:
+        st.markdown(f"**เพศ:** {volunteer['gender']}")
+        st.markdown(f"**จังหวัด:** {volunteer['province']}")
+        
+    with col5:
+        st.markdown(f"**แขวง/ตำบล:** {volunteer['sub_district']}")
+        
+    with col6:
+        st.markdown(f"**เขต/อำเภอ:** {volunteer['district']}")  
 
     st.subheader("การดำเนินงาน")
     
@@ -151,13 +162,13 @@ def data_entry_page():
 
     if st.button("บันทึกข้อมูล"):
         data = {
-            "volunteer_id": reports["volunteer_id"],
-            "prefix": reports["prefix"],
-            "first_name": reports["first_name"],
-            "last_name": reports["last_name"],
-            "community": reports["community"],
-            "sub_district": reports["sub_district"],
-            "district": reports["district"],
+            "volunteer_id": volunteer["volunteer_id"],
+            "prefix": volunteer["prefix"],
+            "first_name": volunteer["first_name"],
+            "last_name": volunteer["last_name"],
+            "community": volunteer["community"],
+            "sub_district": volunteer["sub_district"],
+            "district": volunteer["district"],
             "operation_month": operation_month,
             "operation_year": operation_year,
             "q1_prevention1_times": st.session_state.q1_prevention1_times,
@@ -185,8 +196,7 @@ def data_entry_page():
             "notes": suggestions_note
         }
 
-        display_data = {k: v for k, v in data.items() if k not in ["age", "birth_date"]}
         st.write("ข้อมูลที่กรอก :")
-        st.write(display_data)
+        st.write(data)
 
         insert_data_to_db(data)

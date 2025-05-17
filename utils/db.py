@@ -129,3 +129,29 @@ def get_latest_report_by_volunteer_id(volunteer_id):
     cursor.close()
     conn.close()
     return result
+
+# select all volunteers
+def get_all_volunteers():
+    conn = connect_db()
+    cursor = conn.cursor(dictionary=True)
+
+    query = "SELECT volunteer_id, first_name, last_name FROM volunteers ORDER BY volunteer_id"
+    cursor.execute(query)
+    results = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+    return results
+
+# get volunteer by ID
+def get_volunteer_by_id(volunteer_id):
+    conn = connect_db()
+    cursor = conn.cursor(dictionary=True)
+
+    query = "SELECT * FROM volunteers WHERE volunteer_id = %s"
+    cursor.execute(query, (volunteer_id,))
+    result = cursor.fetchone()
+
+    cursor.close()
+    conn.close()
+    return result

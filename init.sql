@@ -26,13 +26,13 @@ VALUES ('dev@hvbma.or.th', '1', 'dev', 'HIRVZ5VCQP655R5RWNUX3FY4WP3I3ZTM'),
 ('admin@hvbma.or.th', '1', 'admin', 'DT7QEYOIUXDZOGAWX77UZOGNIUFDU5TK');
 
 CREATE TABLE IF NOT EXISTS volunteers (
-    volunteer_id BIGINT(11) PRIMARY KEY,
+    volunteer_id VARCHAR(12) PRIMARY KEY,
     prefix VARCHAR(10) NOT NULL,       
     first_name VARCHAR(100) NOT NULL,
     last_name VARCHAR(100) NOT NULL,
     gender VARCHAR(10) NOT NULL,
     birth_date DATE NOT NULL,
-    phone_number VARCHAR(20) NOT NULL,
+    phone_number VARCHAR(10) NOT NULL,
     community VARCHAR(255) NOT NULL,
     service VARCHAR(255) NOT NULL,
     sub_district VARCHAR(100) NOT NULL,
@@ -45,7 +45,7 @@ CREATE TABLE IF NOT EXISTS reports (
     id INT AUTO_INCREMENT PRIMARY KEY,
 
     -- ข้อมูลส่วนตัว
-    volunteer_id BIGINT(11) NOT NULL,
+    volunteer_id VARCHAR(12) NOT NULL,
     prefix VARCHAR(10) NOT NULL,
     first_name VARCHAR(100) NOT NULL,
     last_name VARCHAR(100) NOT NULL,

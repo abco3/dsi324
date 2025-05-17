@@ -1,15 +1,15 @@
 import streamlit as st
 import pandas as pd
 from datetime import datetime
-from utils.db import get_unique_volunteer_ids_from_reports, get_latest_report_by_volunteer_id, get_reports_by_volunteer_id
+from utils.db import get_all_volunteers, get_volunteer_by_id, get_reports_by_volunteer_id
 
 
 def view_volunteer_data_page():
     st.title("ตรวจสอบข้อมูลอาสาสมัคร")
 
-    volunteers = get_unique_volunteer_ids_from_reports()
+    volunteers = get_all_volunteers()
     if not volunteers:
-        st.warning("ไม่พบข้อมูลรายงานของอาสาสมัคร")
+        st.warning("ไม่พบข้อมูลอาสาสมัครในระบบ")
         return
 
     options = [f"{v['volunteer_id']} - {v['first_name']} {v['last_name']}" for v in volunteers]
@@ -18,11 +18,11 @@ def view_volunteer_data_page():
     if st.button("ค้นหา"):
         volunteer_id = int(selected.split(" - ")[0])
 
-        volunteer = get_latest_report_by_volunteer_id(volunteer_id)
+        volunteer = get_volunteer_by_id(volunteer_id)
         reports = get_reports_by_volunteer_id(volunteer_id)
 
         if not volunteer:
-            st.error("ไม่พบข้อมูลรายงานของอาสาสมัคร")
+            st.error("ไม่พบข้อมูลอาสาสมัคร")
             return
 
         st.subheader("ข้อมูลทั่วไป")
@@ -34,13 +34,25 @@ def view_volunteer_data_page():
         col1, col2, col3 = st.columns(3)
         with col1:
             st.markdown(f"**คำนำหน้า:** {volunteer['prefix']}")
-            st.markdown(f"**ชุมชน:** {volunteer['community']}")           
+            st.markdown(f"**เบอร์โทร:** {volunteer['phone_number']}")      
         with col2:
             st.markdown(f"**ชื่อ:** {volunteer['first_name']}")
-            st.markdown(f"**แขวง/ตำบล:** {volunteer['sub_district']}")
+            st.markdown(f"**ชุมชน:** {volunteer['community']}")
+
         with col3:
             st.markdown(f"**นามสกุล:** {volunteer['last_name']}")
-            st.markdown(f"**เขต/อำเภอ:** {volunteer['district']}")
+            st.markdown(f"**ศูนย์บริการ:** {volunteer['service']}")
+
+        col4, col5, col6 = st.columns(3)
+        with col4:
+            st.markdown(f"**เพศ:** {volunteer['gender']}")
+            st.markdown(f"**จังหวัด:** {volunteer['province']}")
+            
+        with col5:
+            st.markdown(f"**แขวง/ตำบล:** {volunteer['sub_district']}")
+            
+        with col6:
+            st.markdown(f"**เขต/อำเภอ:** {volunteer['district']}")  
 
         st.subheader("รายงานผลการปฏิบัติงาน")
 
@@ -66,3 +78,5 @@ def view_volunteer_data_page():
                     df.reset_index(inplace=True)
                     df.columns = ["column", "input"]
                     st.dataframe(df, use_container_width=True)
+        else:
+            st.info("ยังไม่มีรายงานของอาสาสมัครคนนี้ในระบบ")

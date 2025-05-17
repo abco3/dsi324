@@ -12,7 +12,7 @@ def upload_volunteers_page():
 
     if uploaded_file is not None:
         try:
-            df = pd.read_excel(uploaded_file, engine="openpyxl")
+            df = pd.read_excel(uploaded_file, engine="openpyxl", dtype={"phone_number": str, "volunteer_id": str})
 
             df.columns = [str(col).strip() if pd.notna(col) else f"col_{i}" for i, col in enumerate(df.columns)]
             df = df.where(pd.notnull(df), None)
