@@ -89,13 +89,14 @@ def verify_otp(email, otp_code):
         cursor.close()
         conn.close()
 
-# select reports
+# get reports data
 def get_reports_by_volunteer_id(volunteer_id):
     with connect_db() as conn:
         with conn.cursor(dictionary=True) as cursor:
             cursor.execute("SELECT * FROM reports WHERE volunteer_id = %s ORDER BY created_at ASC", (volunteer_id,))
             return cursor.fetchall()
 
+#get id name from reports
 def get_unique_volunteer_ids_from_reports():
     conn = connect_db()
     cursor = conn.cursor(dictionary=True)
@@ -112,6 +113,7 @@ def get_unique_volunteer_ids_from_reports():
     conn.close()
     return results
 
+# get reports data
 def get_latest_report_by_volunteer_id(volunteer_id):
     conn = connect_db()
     cursor = conn.cursor(dictionary=True)
@@ -130,7 +132,7 @@ def get_latest_report_by_volunteer_id(volunteer_id):
     conn.close()
     return result
 
-# select all volunteers
+# get id name from volunteers
 def get_all_volunteers():
     conn = connect_db()
     cursor = conn.cursor(dictionary=True)
@@ -143,7 +145,7 @@ def get_all_volunteers():
     conn.close()
     return results
 
-# get volunteer by ID
+# get volunteer data by ID
 def get_volunteer_by_id(volunteer_id):
     conn = connect_db()
     cursor = conn.cursor(dictionary=True)
@@ -155,3 +157,19 @@ def get_volunteer_by_id(volunteer_id):
     cursor.close()
     conn.close()
     return result
+
+# get all reports data
+def get_all_reports():
+    conn = connect_db()
+    if conn is None:
+        return []
+
+    try:
+        cursor = conn.cursor(dictionary=True)
+        query = "SELECT * FROM reports ORDER BY created_at DESC"
+        cursor.execute(query)
+        results = cursor.fetchall()
+        return results
+    finally:
+        cursor.close()
+        conn.close()

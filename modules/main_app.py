@@ -3,8 +3,8 @@ from modules.login import login_page
 from modules.otp import otp_page
 from modules.home import home_page
 from modules.search_volunteer import search_volunteer_page
-from modules.view_reports import view_reports_page
-from modules.view_volunteer_data import view_volunteer_data_page
+from modules.dashboard import dashboard_page
+from modules.check_volunteer import check_volunteer_page
 from modules.data_entry import data_entry_page
 from modules.upload_report import upload_reports_page
 from modules.upload_volunteer import upload_volunteers_page
@@ -28,7 +28,7 @@ def main():
     # create menu
     page_options = ["หน้าหลัก"]
     if role in ["admin", "dev"]:
-        page_options.extend(["รายงาน", "ค้นหา", "ตรวจสอบ", "อัปโหลดรายงาน"])
+        page_options.extend(["แดชบอร์ด", "ค้นหา", "ตรวจสอบ", "อัปโหลดรายงาน"])
 
     #temporary add page
     if st.session_state.page == "กรอกข้อมูล":
@@ -36,7 +36,7 @@ def main():
         page_options.insert(insert_index, "กรอกข้อมูล")
 
     if role == "user":
-        page_options.append("รายงาน")
+        page_options.append("แดชบอร์ด")
     if role == "dev":
         page_options.extend(["อัปโหลดอาสาสมัคร", "สร้างบัญชี"])
 
@@ -61,9 +61,9 @@ def main():
             st.session_state.page = "หน้าหลัก"
             st.rerun()
 
-    elif st.session_state.page == "รายงาน":
+    elif st.session_state.page == "แดชบอร์ด":
         if role in ["admin", "dev", "user"]:
-            view_reports_page()
+            dashboard_page()
 
     elif st.session_state.page == "ค้นหา":
         if role in ["admin", "dev"]:
@@ -75,7 +75,7 @@ def main():
 
     elif st.session_state.page == "ตรวจสอบ":
         if role in ["admin", "dev"]:
-            view_volunteer_data_page()
+            check_volunteer_page()
     
     elif st.session_state.page == "อัปโหลดรายงาน":
         if role in ["admin", "dev"]:

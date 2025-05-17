@@ -4,7 +4,7 @@ from datetime import datetime
 from utils.db import get_all_volunteers, get_volunteer_by_id, get_reports_by_volunteer_id
 
 
-def view_volunteer_data_page():
+def check_volunteer_page():
     st.title("ตรวจสอบข้อมูลอาสาสมัคร")
 
     volunteers = get_all_volunteers()
