@@ -6,7 +6,8 @@ from modules.search_volunteer import search_volunteer_page
 from modules.view_reports import view_reports_page
 from modules.view_volunteer_data import view_volunteer_data_page
 from modules.data_entry import data_entry_page
-from modules.upload_data import upload_data_page
+from modules.upload_report import upload_reports_page
+from modules.upload_volunteer import upload_volunteers_page
 from modules.create_account import create_account_page
 
 
@@ -27,7 +28,7 @@ def main():
     # create menu
     page_options = ["หน้าหลัก"]
     if role in ["admin", "dev"]:
-        page_options.extend(["รายงาน", "ค้นหา", "ตรวจสอบ", "อัปโหลดข้อมูล"])
+        page_options.extend(["รายงาน", "ค้นหา", "ตรวจสอบ", "อัปโหลดรายงาน"])
 
     #temporary add page
     if st.session_state.page == "กรอกข้อมูล":
@@ -37,7 +38,7 @@ def main():
     if role == "user":
         page_options.append("รายงาน")
     if role == "dev":
-        page_options.append("สร้างบัญชี")
+        page_options.extend(["อัปโหลดอาสาสมัคร", "สร้างบัญชี"])
 
     # selectbox check
     if st.session_state.page not in page_options:
@@ -76,6 +77,10 @@ def main():
         if role in ["admin", "dev"]:
             view_volunteer_data_page()
     
-    elif st.session_state.page == "อัปโหลดข้อมูล":
+    elif st.session_state.page == "อัปโหลดรายงาน":
         if role in ["admin", "dev"]:
-            upload_data_page()
+            upload_reports_page()
+    
+    elif st.session_state.page == "อัปโหลดอาสาสมัคร":
+        if role == "dev":
+            upload_volunteers_page()

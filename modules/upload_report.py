@@ -2,8 +2,8 @@ import streamlit as st
 import pandas as pd
 from utils.db import connect_db
 
-def upload_data_page():
-    st.title("อัปโหลดข้อมูลเข้าสู่ระบบ")
+def upload_reports_page():
+    st.title("อัปโหลดข้อมูลรายงาน")
 
     if "upload_done" not in st.session_state:
         st.session_state.upload_done = False
@@ -37,7 +37,6 @@ def upload_data_page():
                             sql = f"INSERT INTO reports ({columns}) VALUES ({placeholders})"
                             cursor.execute(sql, tuple(clean_row.values))
                         conn.commit()
-                        st.success("✅")
 
                         st.session_state.upload_done = True
                         st.rerun()
