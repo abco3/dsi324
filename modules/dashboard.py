@@ -178,6 +178,7 @@ def dashboard_page():
                     line=dict(width=0)
                 ),
                 name="จำนวนกิจกรรม",
+                showlegend=False,
                 text=[f"{v:,.0f}" for v in sorted_values],
                 textposition='outside',
                 textfont=dict(
@@ -213,13 +214,13 @@ def dashboard_page():
                 tickfont=dict(family="Kanit", color="black"),
                 title_font=dict(size=15, family="Kanit", color="black")
             ),
-            legend=dict(
-                orientation="h",
-                yanchor="bottom",
-                y=-0.3,
-                xanchor="center",
-                x=0.5
-            ),
+#            legend=dict(
+#               orientation="h",
+#                yanchor="bottom",
+#                y=-0.3,
+#                xanchor="center",
+#                x=0.5
+#            ),
             margin=dict(l=20, r=20, t=80, b=80),
             height=400
         )
@@ -262,7 +263,7 @@ def dashboard_page():
             legend=dict(
                 orientation="h",
                 yanchor="bottom",
-                y=-0.1,
+                y=-0.125,
                 xanchor="center",
                 x=0.5,
                 font=dict(size=12, color="black")
