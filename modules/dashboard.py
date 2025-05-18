@@ -131,7 +131,7 @@ def dashboard_page():
         st.markdown("##### ยอดกิจกรรมในแต่ละหัวข้อ")
     
     with colnn3:
-        st.markdown("##### อัตราส่วนกิจกรรมในแต่ละหัวข้อ")
+        st.markdown("##### อัตราส่วนกิจกรรมในแต่ละแขวง")
 
     colbar, colpie = st.columns([1.6, 1])
 
@@ -157,18 +157,28 @@ def dashboard_page():
             total = filtered_df[cols].sum().sum()
             activity_labels.append(f"หัวข้อ {topic}")
             activity_sums.append(total)
-
+        
         # ============ barchart =============
+        # color
+        custom_colors = ["#96640F", "#B98412", "#DCA614", "#FFCC17", "#FFE072"]
+
+        # label with value (high -> low)
+        sorted_data = sorted(zip(activity_labels, activity_sums), key=lambda x: x[1], reverse=True)
+
+        sorted_labels = [label for label, _ in sorted_data]
+        sorted_values = [value for _, value in sorted_data]
+        bar_colors = custom_colors[:len(sorted_labels)]
+
         fig_bar = go.Figure(data=[
             go.Bar(
-                x=activity_labels,
-                y=activity_sums,
+                x=sorted_labels,
+                y=sorted_values,
                 marker=dict(
-                    color="#DCA614",
+                    color=bar_colors,
                     line=dict(width=0)
                 ),
                 name="จำนวนกิจกรรม",
-                text=[f"{v:,.0f}" for v in activity_sums],
+                text=[f"{v:,.0f}" for v in sorted_values],
                 textposition='outside',
                 textfont=dict(
                     family="Kanit",
@@ -178,16 +188,17 @@ def dashboard_page():
             )
         ])
 
-        y_max = max(activity_sums)
-        y_range_max = int(y_max * 1.12)  
+        y_max = max(sorted_values)
+        y_range_max = int(y_max * 1.12)
 
+        # ============ layout =============
         fig_bar.update_layout(
             title=dict(
                 text="",
                 font=dict(family="Kanit", size=16, color="black"),
                 x=0.5
             ),
-            barmode="group", 
+            barmode="group",
             xaxis_title="หัวข้อกิจกรรม",
             yaxis_title="จำนวน (ครั้ง)",
             font=dict(family="Kanit", size=15),
@@ -199,7 +210,6 @@ def dashboard_page():
             yaxis=dict(
                 range=[0, y_range_max],
                 tickformat=",",
-                gridcolor='rgba(0,0,0,0.05)',
                 tickfont=dict(family="Kanit", color="black"),
                 title_font=dict(size=15, family="Kanit", color="black")
             ),
@@ -216,36 +226,34 @@ def dashboard_page():
 
         st.plotly_chart(fig_bar, use_container_width=True)
 
-    # ===== pie chart =====
+    # ============= pie chart =============
     with colpie:
-        pie_data = filtered_df[times_cols].sum().reset_index()
-        pie_data.columns = ['activity', 'count']
-        pie_data['activity'] = pie_data['activity'].str.extract(r'(q\d+)')
-        pie_data = pie_data.groupby('activity').sum().reset_index()
-        pie_data = pie_data.sort_values(by='count', ascending=False).reset_index(drop=True)
 
-        # map q
-        activity_labels = {
-            "q1": "หัวข้อ 1",
-            "q2": "หัวข้อ 2",
-            "q3": "หัวข้อ 3",
-            "q4": "หัวข้อ 4",
-            "q5": "หัวข้อ 5"
-        }
+        # setting for interactive up to u
+        pie_base_df = df.copy()
+        if selected_year != "ทั้งหมด":
+            pie_base_df = pie_base_df[pie_base_df["operation_year"] == selected_year]
+        if selected_month != "ทั้งหมด":
+            pie_base_df = pie_base_df[pie_base_df["operation_month"] == selected_month]
+        #if selected_subdistrict != "ทั้งหมด":
+         #    pie_base_df = pie_base_df[pie_base_df["sub_district"] == selected_subdistrict]
 
-        pie_data["label"] = pie_data["activity"].map(activity_labels)
+        # merge *_times
+        times_cols = pie_base_df.filter(regex=r"_times$").columns
+        pie_df = pie_base_df.groupby("sub_district")[times_cols].sum()
+        pie_df["total_times"] = pie_df.sum(axis=1)
+        pie_df = pie_df[pie_df["total_times"] > 0].sort_values("total_times", ascending=False).head(3).reset_index()
 
-        # scale
-        custom_colors = ["#204D00", "#3D7317", "#63993D", "#87BB62", "#AFDC8F"]
+        pie_colors = ["#204D00", "#3D7317", "#63993D", "#87BB62", "#AFDC8F"]
 
         fig_pie = go.Figure(data=[
             go.Pie(
-                labels=pie_data["label"],
-                values=pie_data["count"],
+                labels=pie_df["sub_district"],
+                values=pie_df["total_times"],
                 textinfo='percent',
                 insidetextorientation='radial',
                 hole=0.4,
-                marker=dict(colors=custom_colors[:len(pie_data)])
+                marker=dict(colors=pie_colors[:len(pie_df)])
             )
         ])
 
@@ -254,7 +262,7 @@ def dashboard_page():
             legend=dict(
                 orientation="h",
                 yanchor="bottom",
-                y=-0.2,
+                y=-0.1,
                 xanchor="center",
                 x=0.5,
                 font=dict(size=12, color="black")
