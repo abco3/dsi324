@@ -376,7 +376,7 @@ def dashboard_page():
             <div style='font-family: "Kanit", sans-serif; margin-top: 1rem;'>
                 <span style='font-size: 1.25rem; color: black; font-weight: bold;'>
                     รายชื่ออาสาสมัครที่
-                    <span style='color: #d20d0d;'>ไม่ส่งรายงาน</span>              
+                    <span style='color: #d20d0d;'>ไม่ได้ส่งรายงาน</span>              
                 </span>
                 <span style='font-size: 0.9rem; color: #808495; font-weight: normal;'>
                     (แสดงสูงสุด 500 รายการ)
@@ -443,7 +443,7 @@ def dashboard_page():
         summary_pie.columns = ["answered", "count"]
         summary_pie["label"] = summary_pie["answered"].map({
             True: "อาสาสมัครที่ส่งรายงาน",
-            False: "อาสาสมัครที่ไม่ส่งรายงาน"
+            False: "อาสาสมัครที่ไม่ได้ส่งรายงาน"
         })
 
         pie_colors = ["#d7d7d7", "#d20d0d"]

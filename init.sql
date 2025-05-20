@@ -11,19 +11,19 @@ CREATE TABLE IF NOT EXISTS users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     email VARCHAR(255) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
-    role VARCHAR(30) NOT NULL DEFAULT 'user',
+    role VARCHAR(30) NOT NULL DEFAULT 'visitor',
     otp_secret VARCHAR(32) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     -- Constraints
     CHECK (email LIKE '%@hvbma.or.th'),
-    CHECK (role IN ('user', 'admin', 'dev'))
+    CHECK (role IN ('visitor', 'user', 'admin'))
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
 
 INSERT INTO users (email, password, role, otp_secret) 
-VALUES ('dev@hvbma.or.th', '1', 'dev', 'HIRVZ5VCQP655R5RWNUX3FY4WP3I3ZTM'),
-('user@hvbma.or.th', '1', 'user', '26CHFTL7NFF2BVAPNVCDCGIKTTT3X6QG'),
-('admin@hvbma.or.th', '1', 'admin', 'DT7QEYOIUXDZOGAWX77UZOGNIUFDU5TK');
+VALUES ('admin@hvbma.or.th', '1', 'admin', '65NQKBZJS6WAWU6ROYBH2IGMI34FREF7'),
+('user@hvbma.or.th', '1', 'user', 'PF77MXS7CMC33NFAMRA2H263LJHXT5UD'),
+('visitor@hvbma.or.th', '1', 'visitor', 'ZRQW6N5R5GDKIAE6P5FLZ3Z4GZTYG7HG');
 
 CREATE TABLE IF NOT EXISTS volunteers (
     volunteer_id VARCHAR(12) PRIMARY KEY,

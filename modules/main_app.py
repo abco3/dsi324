@@ -9,7 +9,7 @@ from modules.data_entry import data_entry_page
 from modules.upload_report import upload_reports_page
 from modules.upload_volunteer import upload_volunteers_page
 from modules.create_account import create_account_page
-
+from modules.weather import weather_page
 
 def main():
     if 'logged_in' not in st.session_state or not st.session_state.logged_in:
@@ -27,17 +27,17 @@ def main():
 
     # create menu
     page_options = ["หน้าหลัก"]
-    if role in ["admin", "dev"]:
-        page_options.extend(["แดชบอร์ด", "ค้นหา", "ตรวจสอบ", "อัปโหลดรายงาน"])
+    if role in ["user", "admin"]:
+        page_options.extend(["แดชบอร์ด", "สภาพอากาศ", "ค้นหา", "ตรวจสอบ", "อัปโหลดรายงาน"])
 
     #temporary add page
     if st.session_state.page == "กรอกข้อมูล":
         insert_index = page_options.index("ค้นหา") + 1
         page_options.insert(insert_index, "กรอกข้อมูล")
 
-    if role == "user":
-        page_options.append("แดชบอร์ด")
-    if role == "dev":
+    if role == "visitor":
+        page_options.extend(["แดชบอร์ด", "สภาพอากาศ"])
+    if role == "admin":
         page_options.extend(["อัปโหลดอาสาสมัคร", "สร้างบัญชี"])
 
     # selectbox check
@@ -54,7 +54,7 @@ def main():
         home_page()
 
     elif st.session_state.page == "กรอกข้อมูล":
-        if role in ["admin", "dev"] and "selected_volunteer" in st.session_state:
+        if role in ["user", "admin"] and "selected_volunteer" in st.session_state:
             data_entry_page()
         else:
             st.warning("ไม่สามารถเข้าถึงหน้านี้ได้โดยตรง")
@@ -62,25 +62,29 @@ def main():
             st.rerun()
 
     elif st.session_state.page == "แดชบอร์ด":
-        if role in ["admin", "dev", "user"]:
+        if role in ["visitor", "admin", "user"]:
             dashboard_page()
 
     elif st.session_state.page == "ค้นหา":
-        if role in ["admin", "dev"]:
+        if role in ["user", "admin"]:
             search_volunteer_page()
 
     elif st.session_state.page == "สร้างบัญชี":
-        if role == "dev":
+        if role == "admin":
             create_account_page()
 
     elif st.session_state.page == "ตรวจสอบ":
-        if role in ["admin", "dev"]:
+        if role in ["user", "admin"]:
             check_volunteer_page()
     
     elif st.session_state.page == "อัปโหลดรายงาน":
-        if role in ["admin", "dev"]:
+        if role in ["user", "admin"]:
             upload_reports_page()
     
     elif st.session_state.page == "อัปโหลดอาสาสมัคร":
-        if role == "dev":
+        if role == "admin":
             upload_volunteers_page()
+            
+    elif st.session_state.page == "สภาพอากาศ":
+        if role in ["visitor", "admin", "user"]:
+            weather_page()
