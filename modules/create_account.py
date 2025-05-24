@@ -11,7 +11,7 @@ def create_account_page():
 
     new_email = st.text_input("อีเมล")
     new_password = st.text_input("รหัสผ่าน", type="password")
-    new_role = st.selectbox("บทบาท", ["user", "admin", "dev"])
+    new_role = st.selectbox("บทบาท", ["visitor", "user", "admin"])
 
     if st.button("สร้างบัญชี"):
         # OTP Secret
