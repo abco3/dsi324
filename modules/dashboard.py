@@ -43,12 +43,29 @@ def dashboard_page():
         selected_month = st.selectbox("เลือกเดือน", ["ทั้งหมด"] + months)
         selected_subdistrict = st.selectbox("เลือกแขวง", ["ทั้งหมด"] + subdistricts)
 
+    st.markdown("")
+
+    topic_map = {
+        "ป้องกัน": "q1_",
+        "บำบัด": "q2_",
+        "ติดตาม": "q3_",
+        "เครือข่าย": "q4_",
+        "ให้คำปรึกษา": "q5_",
+        }
+    selected_topics = st.multiselect("เลือกหัวข้อกิจกรรม", list(topic_map.keys()), default=list(topic_map.keys()))
+    selected_prefixes = [topic_map[t] for t in selected_topics]
+
     # ============ valid_reports_df filter =============
     filtered_df = df.copy()
 
-    question_cols = [col for col in filtered_df.columns if re.match(r"^q[1-5]_", col)]
+    if selected_prefixes:
+        pattern = f"^({'|'.join(selected_prefixes)})"
+        question_cols = [col for col in filtered_df.columns if re.match(pattern, col)]
 
-    valid_reports_df = filtered_df[filtered_df[question_cols].sum(axis=1) > 0]
+        valid_reports_df = filtered_df[filtered_df[question_cols].sum(axis=1) > 0]
+    else:
+        st.warning("กรุณาเลือกหัวข้อกิจกรรมอย่างน้อย 1 หัวข้อ")
+        return
 
     if selected_year != "ทั้งหมด":
         valid_reports_df = valid_reports_df[valid_reports_df["operation_year"] == selected_year]
@@ -59,8 +76,11 @@ def dashboard_page():
     if selected_subdistrict != "ทั้งหมด":
         valid_reports_df = valid_reports_df[valid_reports_df["sub_district"] == selected_subdistrict]
 
-    total_activities = valid_reports_df.filter(regex="_times$").sum().sum()
-    total_people = valid_reports_df.filter(regex="_people$").sum().sum()
+    times_cols = [col for col in question_cols if col.endswith("_times")]
+    people_cols = [col for col in question_cols if col.endswith("_people")]
+
+    total_activities = valid_reports_df[times_cols].sum().sum()
+    total_people = valid_reports_df[people_cols].sum().sum()
     total_reports = len(valid_reports_df)
 
     # ============  df_volunteer filter =============
@@ -87,7 +107,7 @@ def dashboard_page():
                 box-shadow: 0 4px 10px rgba(0,0,0,0.15);
             ">
                 <div style="font-size: 1.1rem;">ยอดรายงาน (ครั้ง)</div>
-                <div style="font-size: 1.8rem; font-weight: bold;">{total_reports:,}</div>
+                <div style="font-size: 1.8rem; font-weight: bold;">{int(total_reports):,}</div>
             </div>
         """, unsafe_allow_html=True)
 
@@ -101,7 +121,7 @@ def dashboard_page():
                 box-shadow: 0 4px 10px rgba(0,0,0,0.15);
             ">
                 <div style="font-size: 1.1rem;">ยอดกิจกรรม (ครั้ง)</div>
-                <div style="font-size: 1.8rem; font-weight: bold;">{total_activities:,}</div>
+                <div style="font-size: 1.8rem; font-weight: bold;">{int(total_activities):,}</div>
             </div>
         """, unsafe_allow_html=True)
 
@@ -132,12 +152,9 @@ def dashboard_page():
                 box-shadow: 0 4px 10px rgba(0,0,0,0.15);
             ">
                 <div style="font-size: 1.1rem;">ยอดผู้เข้าร่วม (ราย)</div>
-                <div style="font-size: 1.8rem; font-weight: bold;">{total_people:,}</div>
+                <div style="font-size: 1.8rem; font-weight: bold;">{int(total_people):,}</div>
             </div>
-        """, unsafe_allow_html=True)
-    
-    st.markdown("")
-    st.markdown("")
+        """, unsafe_allow_html=True)       
 
     # ============ barchart and piechart =============
     colnn1, colnn3 = st.columns([2.2, 1.5])
@@ -150,8 +167,7 @@ def dashboard_page():
     colbar, colpie = st.columns([1.6, 1])
 
     with colbar:
-        # ============ setting =============
-        times_cols = valid_reports_df.filter(regex=r"_times$").columns
+        times_cols = [col for col in df.columns if col.endswith("_times")]
 
         activity_groups = {}
 
@@ -171,17 +187,25 @@ def dashboard_page():
             "5": "ให้คำปรึกษา"
         }
 
-        # sum every q
+        # filter for barchart
+        filtered_df_for_barchart = df.copy()
+        if selected_year != "ทั้งหมด":
+            filtered_df_for_barchart = filtered_df_for_barchart[filtered_df_for_barchart["operation_year"] == selected_year]
+
+        if selected_month != "ทั้งหมด":
+            filtered_df_for_barchart = filtered_df_for_barchart[filtered_df_for_barchart["operation_month"] == selected_month]
+
+        if selected_subdistrict != "ทั้งหมด":
+            filtered_df_for_barchart = filtered_df_for_barchart[filtered_df_for_barchart["sub_district"] == selected_subdistrict]
+
         activity_labels = []
         activity_sums = []
 
         for topic, cols in sorted(activity_groups.items(), key=lambda x: int(x[0])):
-            total = valid_reports_df[cols].sum().sum()
-            activity_labels.append(topic_name_map.get(topic, f"หัวข้อ {topic}")) 
+            total = filtered_df_for_barchart[cols].sum().sum()
+            activity_labels.append(topic_name_map.get(topic, f"หัวข้อ {topic}"))
             activity_sums.append(total)
-        
-        # ============ barchart =============
-        # color
+
         custom_colors = ["#f98309", "#ffa10e", "#fabc04", "#ffde59", "#ffebcd"]
 
         # label with value (high -> low)
@@ -212,7 +236,7 @@ def dashboard_page():
         ])
 
         y_max = max(sorted_values)
-        y_range_max = int(y_max * 1.12)
+        y_range_max = int(y_max * 1.12) if y_max > 0 else 10
 
         # ============ layout =============
         fig_bar.update_layout(
@@ -254,15 +278,23 @@ def dashboard_page():
 
         # setting for interactive up to u
         pie_base_df = df.copy()
+
         if selected_year != "ทั้งหมด":
             pie_base_df = pie_base_df[pie_base_df["operation_year"] == selected_year]
+
         if selected_month != "ทั้งหมด":
             pie_base_df = pie_base_df[pie_base_df["operation_month"] == selected_month]
-        #if selected_subdistrict != "ทั้งหมด":
-         #    pie_base_df = pie_base_df[pie_base_df["sub_district"] == selected_subdistrict]
 
-        # merge *_times
-        times_cols = pie_base_df.filter(regex=r"_times$").columns
+        if selected_prefixes:
+            pattern = f"^({'|'.join(selected_prefixes)})"
+            times_cols = [col for col in pie_base_df.columns if re.match(pattern, col) and col.endswith("_times")]
+        else:
+            times_cols = [col for col in pie_base_df.columns if col.endswith("_times")]
+
+        if not times_cols:
+            st.warning("ไม่มีข้อมูลกิจกรรมในหัวข้อกิจกรรมที่เลือก")
+            return
+
         pie_df = pie_base_df.groupby("sub_district")[times_cols].sum()
         pie_df["total_times"] = pie_df.sum(axis=1)
         pie_df = pie_df[pie_df["total_times"] > 0].sort_values("total_times", ascending=False).head(3).reset_index()
@@ -307,60 +339,66 @@ def dashboard_page():
     if selected_subdistrict != "ทั้งหมด":
         df_line_base = df_line_base[df_line_base["sub_district"] == selected_subdistrict]
 
-    thai_month_map = {
-        "มกราคม": 1, "กุมภาพันธ์": 2, "มีนาคม": 3, "เมษายน": 4,
-        "พฤษภาคม": 5, "มิถุนายน": 6, "กรกฎาคม": 7, "สิงหาคม": 8,
-        "กันยายน": 9, "ตุลาคม": 10, "พฤศจิกายน": 11, "ธันวาคม": 12,
-    }
+    if selected_prefixes:
+        pattern = f"^({'|'.join(selected_prefixes)})"
+        people_cols = [col for col in df_line_base.columns if re.match(pattern, col) and col.endswith("_people")]
+    else:
+        people_cols = [col for col in df_line_base.columns if col.endswith("_people")]
 
-    thai_month_abbr = {
-        1: "ม.ค.", 2: "ก.พ.", 3: "มี.ค.", 4: "เม.ย.",
-        5: "พ.ค.", 6: "มิ.ย.", 7: "ก.ค.", 8: "ส.ค.",
-        9: "ก.ย.", 10: "ต.ค.", 11: "พ.ย.", 12: "ธ.ค."
-    }
+    if not people_cols:
+        st.warning("ไม่มีข้อมูลผู้เข้าร่วมในหัวข้อกิจกรรมที่เลือก")
+    else:
 
-    df_line_base["month_num"] = df_line_base["operation_month"].map(thai_month_map)
-    df_line_base["year_gregorian"] = df_line_base["operation_year"] - 543
-    df_line_base["operation_date"] = pd.to_datetime(
-        df_line_base["year_gregorian"].astype(str) + "-" + df_line_base["month_num"].astype(str) + "-01"
-    )
+        thai_month_map = {
+            "มกราคม": 1, "กุมภาพันธ์": 2, "มีนาคม": 3, "เมษายน": 4,
+            "พฤษภาคม": 5, "มิถุนายน": 6, "กรกฎาคม": 7, "สิงหาคม": 8,
+            "กันยายน": 9, "ตุลาคม": 10, "พฤศจิกายน": 11, "ธันวาคม": 12,
+        }
+        thai_month_abbr = {
+            1: "ม.ค.", 2: "ก.พ.", 3: "มี.ค.", 4: "เม.ย.",
+            5: "พ.ค.", 6: "มิ.ย.", 7: "ก.ค.", 8: "ส.ค.",
+            9: "ก.ย.", 10: "ต.ค.", 11: "พ.ย.", 12: "ธ.ค."
+        }
 
-    people_cols = df_line_base.filter(regex="_people$").columns
-    df_line = df_line_base.groupby("operation_date")[people_cols].sum().sum(axis=1).reset_index()
-    df_line.columns = ["date", "total_people"]
+        df_line_base["month_num"] = df_line_base["operation_month"].map(thai_month_map)
+        df_line_base["year_gregorian"] = df_line_base["operation_year"] - 543
+        df_line_base["operation_date"] = pd.to_datetime(
+            df_line_base["year_gregorian"].astype(str) + "-" + df_line_base["month_num"].astype(str) + "-01"
+        )
 
-    # label เดือน + พ.ศ.
-    df_line["label"] = df_line["date"].dt.month.map(thai_month_abbr) + " " + (df_line["date"].dt.year + 543).astype(str)
+        df_line = df_line_base.groupby("operation_date")[people_cols].sum().sum(axis=1).reset_index()
+        df_line.columns = ["date", "total_people"]
 
-    # plot
-    fig_line = px.line(
-        df_line,
-        x="label",
-        y="total_people",
-        labels={"label": "เดือน", "total_people": "จำนวนผู้เข้าร่วม (ราย)"},
-    )
+        df_line["label"] = df_line["date"].dt.month.map(thai_month_abbr) + " " + (df_line["date"].dt.year + 543).astype(str)
 
-    # layout
-    fig_line.update_traces(
-        line_color="#004aad",
-        mode="lines+markers",  
-        marker=dict(size=8, color="#004aad")
-    )
+        # plot
+        fig_line = px.line(
+            df_line,
+            x="label",
+            y="total_people",
+            labels={"label": "เดือน", "total_people": "จำนวนผู้เข้าร่วม (ราย)"},
+        )
 
-    fig_line.update_layout(
-        font=dict(family="Kanit", size=16),
-        height=400,
-        margin=dict(l=20, r=20, t=40, b=40),
-        xaxis=dict(
-            title_font=dict(size=15, color="black"),
-            tickfont=dict(color="black")
-        ),
-        yaxis=dict(
-            title_font=dict(size=15, color="black"),
-            tickfont=dict(color="black")
-        ))
+        fig_line.update_traces(
+            line_color="#004aad",
+            mode="lines+markers",
+            marker=dict(size=8, color="#004aad")
+        )
 
-    st.plotly_chart(fig_line, use_container_width=True)
+        fig_line.update_layout(
+            font=dict(family="Kanit", size=16),
+            height=400,
+            margin=dict(l=20, r=20, t=40, b=40),
+            xaxis=dict(
+                title_font=dict(size=15, color="black"),
+                tickfont=dict(color="black")
+            ),
+            yaxis=dict(
+                title_font=dict(size=15, color="black"),
+                tickfont=dict(color="black")
+            ))
+
+        st.plotly_chart(fig_line, use_container_width=True)
 
     # ============ volunteer check submit =============
     st.markdown("""
